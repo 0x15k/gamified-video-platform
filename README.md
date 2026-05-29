@@ -17,6 +17,19 @@ npm run dev
 
 Demo account: `demo@local.dev` / `Demo1234`
 
+## App shell (rutas autenticadas)
+
+| Ruta | Descripción |
+|------|-------------|
+| `/dashboard` | Panel principal |
+| `/story` | Mapa del árbol narrativo |
+| `/player` | Reproductor (refinamiento de video al final) |
+| `/avatar` | Editor 3D |
+| `/store` | Tienda de tokens (checkout mock) |
+| `/wallet` | Billetera |
+| `/upgrade` | Planes Premium/Whale (UI, pasarela pendiente) |
+| `/settings` | Ajustes de cuenta |
+
 ## Post-MVP
 
 - **Premium replay:** re-watching an unlocked premium node does not charge tokens again.

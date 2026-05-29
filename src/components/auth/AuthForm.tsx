@@ -47,7 +47,8 @@ export function AuthForm({ mode }: Props) {
         ...(typeof data.user.avatarData === "object" ? data.user.avatarData : {}),
       },
     });
-    router.push("/player");
+    const params = new URLSearchParams(window.location.search);
+    router.push(params.get("next") || "/dashboard");
   }
 
   return (

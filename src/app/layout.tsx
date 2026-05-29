@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import { AppNav } from "@/components/layout/AppNav";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import "./globals.css";
 
@@ -30,10 +29,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-zinc-950 text-zinc-100 antialiased`}
       >
         <AuthProvider>
-          <main className="mx-auto max-w-5xl px-4 py-8">
-            <AppNav />
-            {children}
-          </main>
+          <main className="mx-auto max-w-6xl px-4 py-8">{children}</main>
         </AuthProvider>
       </body>
     </html>

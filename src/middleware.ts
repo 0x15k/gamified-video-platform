@@ -43,10 +43,9 @@ export async function middleware(request: NextRequest) {
   const payload = token ? await verifyAccessToken(token) : null;
 
   const isApi = pathname.startsWith("/api/");
-  const isAppPage =
-    pathname.startsWith("/player") ||
-    pathname.startsWith("/avatar") ||
-    pathname.startsWith("/wallet");
+  const isAppPage = /^\/(dashboard|story|player|avatar|wallet|store|upgrade|settings)(\/|$)/.test(
+    pathname,
+  );
 
   if ((isApi && !PUBLIC_API.has(pathname)) || isAppPage) {
     if (!payload?.sub) {

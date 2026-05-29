@@ -1,9 +1,13 @@
+import { PageHeader } from "@/components/layout/PageHeader";
 import { WalletPanel } from "@/components/wallet/WalletPanel";
 
 export default function WalletPage() {
   return (
     <section>
-      <h1 className="mb-6 text-2xl font-bold text-white">Billetera e inventario</h1>
+      <PageHeader
+        title="Billetera e inventario"
+        description="Saldo de tokens e historial de transacciones."
+      />
       <WalletPanel />
     </section>
   );
