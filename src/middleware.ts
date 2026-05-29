@@ -7,6 +7,8 @@ const PUBLIC_API = new Set([
   "/api/auth/login",
   "/api/auth/register",
   "/api/auth/refresh",
+  "/api/webhooks/ccbill",
+  "/api/webhooks/crypto",
 ]);
 const PUBLIC_PAGES = new Set(["/", "/login", "/register"]);
 

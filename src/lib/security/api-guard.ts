@@ -95,10 +95,41 @@ export async function deductTokensForNode(
     return { ok: true, user };
   }
 
+  const alreadyUnlocked = await prisma.transaction.findFirst({
+    where: {
+      userId,
+      status: "COMPLETED",
+      gateway: "INTERNAL",
+      metadata: {
+        path: ["videoNodeId"],
+        equals: node.id,
+      },
+    },
+  });
+
+  if (alreadyUnlocked) {
+    const user = await prisma.user.findUniqueOrThrow({
+      where: { id: userId },
+      select: { id: true, email: true, role: true, tokensBalance: true, avatarData: true },
+    });
+    return { ok: true, user };
+  }
+
   const result = await prisma.$transaction(async (tx) => {
     const current = await tx.user.findUnique({ where: { id: userId } });
     if (!current) return null;
     if (current.role === "PREMIUM" || current.role === "WHALE") return current;
+
+    const prior = await tx.transaction.findFirst({
+      where: {
+        userId,
+        status: "COMPLETED",
+        gateway: "INTERNAL",
+        metadata: { path: ["videoNodeId"], equals: node.id },
+      },
+    });
+    if (prior) return current;
+
     if (current.tokensBalance < node.tokenCost) return null;
 
     const updated = await tx.user.update({

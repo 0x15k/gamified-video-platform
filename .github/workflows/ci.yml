@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "cursor/**"]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: postgresql://gamified:gamified@localhost:5432/gamified
+      REDIS_URL: redis://localhost:6379
+      JWT_SECRET: ci-jwt-secret-minimum-32-characters-long
+      JWT_REFRESH_SECRET: ci-refresh-secret-minimum-32-chars
+      MEDIA_SIGNING_SECRET: ci-media-signing-secret-32-chars
+      MEDIA_TOKEN_TTL_SEC: "120"
+      VIDEO_STORAGE_PATH: ./storage/videos
+      NODE_ENV: production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - run: npm ci
+      - run: npx prisma generate
+      - run: npm run lint
+      - run: npm run build

@@ -23,3 +23,12 @@ function loadEnv(): Env {
 }
 
 export const env = loadEnv();
+
+export function getWebhookSecrets(): { ccbill?: string; crypto?: string } {
+  const ccbill = process.env.WEBHOOK_CCBILL_SECRET;
+  const crypto = process.env.WEBHOOK_CRYPTO_SECRET;
+  return {
+    ...(ccbill && ccbill.length >= 16 ? { ccbill } : {}),
+    ...(crypto && crypto.length >= 16 ? { crypto } : {}),
+  };
+}

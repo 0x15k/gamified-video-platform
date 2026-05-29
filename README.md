@@ -17,6 +17,12 @@ npm run dev
 
 Demo account: `demo@local.dev` / `Demo1234`
 
+## Post-MVP
+
+- **Premium replay:** re-watching an unlocked premium node does not charge tokens again.
+- **Session refresh:** client calls `POST /api/auth/refresh` every 13 minutes when logged in.
+- **Payment webhooks (stubs):** `POST /api/webhooks/ccbill` (`x-ccbill-signature`) and `POST /api/webhooks/crypto` (`x-crypto-signature`) — HMAC-SHA256 body verification via `WEBHOOK_*_SECRET` in `.env`.
+
 ## Stack
 
 - Next.js App Router, TypeScript, Tailwind, Zustand
