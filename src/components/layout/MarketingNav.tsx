@@ -6,23 +6,26 @@ type Props = {
 
 export function MarketingNav({ siteName = "Gamified Platform" }: Props) {
   return (
-    <nav className="mb-8 flex items-center justify-between border-b border-zinc-800 pb-4">
+    <nav className="mb-8 flex items-center justify-between border-b border-[var(--border-subtle)] pb-4">
       <div className="flex items-center gap-6">
-        <Link href="/" className="text-lg font-semibold text-white">
-          {siteName}
+        <Link href="/" className="flex items-center gap-2">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--accent)] text-sm font-black text-black">
+            ▶
+          </span>
+          <span className="text-lg font-bold text-white">{siteName}</span>
         </Link>
-        <Link href="/catalog" className="text-sm text-zinc-400 hover:text-white">
+        <Link
+          href="/catalog"
+          className="text-sm font-medium text-[var(--text-muted)] hover:text-[var(--accent)]"
+        >
           Catálogo
         </Link>
       </div>
-      <div className="flex gap-4 text-sm">
-        <Link href="/login" className="text-zinc-400 hover:text-white">
+      <div className="flex gap-3 text-sm">
+        <Link href="/login" className="text-[var(--text-muted)] hover:text-white">
           Login
         </Link>
-        <Link
-          href="/register"
-          className="rounded-lg bg-indigo-600 px-3 py-1.5 text-white hover:bg-indigo-500"
-        >
+        <Link href="/register" className="btn-primary py-1.5">
           Registro
         </Link>
       </div>

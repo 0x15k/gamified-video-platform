@@ -72,63 +72,106 @@ export default async function WatchPage({ params }: Props) {
     });
 
   return (
-    <section className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold text-white">{node.title}</h1>
-        {node.summary && <p className="mt-2 text-zinc-400">{node.summary}</p>}
-        <div className="mt-2 flex flex-wrap gap-2">
-          {node.tags.map((t) => (
-            <Link
-              key={t}
-              href={`/catalog?tag=${encodeURIComponent(t)}`}
-              className="rounded-full bg-zinc-800 px-2 py-0.5 text-xs text-zinc-300 hover:bg-zinc-700"
-            >
-              #{t}
-            </Link>
-          ))}
+    <div className="space-y-6">
+      <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
+        <div className="min-w-0 space-y-4">
+          <WatchPlayer slug={slug} title={node.title} showAds={showAds} />
+          <div>
+            <h1 className="text-lg font-bold leading-snug text-white sm:text-xl">
+              {node.title}
+            </h1>
+            <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-[var(--text-dim)]">
+              <span>{node.viewCount.toLocaleString()} vistas</span>
+              {node.durationSec && <span>{Math.floor(node.durationSec / 60)} min</span>}
+              {node.isPremium && (
+                <span className="rounded bg-[var(--premium)]/20 px-2 py-0.5 font-semibold text-[var(--premium)]">
+                  Premium
+                </span>
+              )}
+            </div>
+            {node.summary && (
+              <p className="mt-3 text-sm leading-relaxed text-[var(--text-muted)]">
+                {node.summary}
+              </p>
+            )}
+            <div className="mt-3 flex flex-wrap gap-2">
+              {node.tags.map((t) => (
+                <Link
+                  key={t}
+                  href={`/catalog?tag=${encodeURIComponent(t)}`}
+                  className="tag-chip hover:border-[var(--accent)] hover:text-[var(--accent)]"
+                >
+                  #{t}
+                </Link>
+              ))}
+            </div>
+          </div>
         </div>
-        <p className="mt-1 text-xs text-zinc-600">{node.viewCount} vistas</p>
-      </div>
 
-      <WatchPlayer slug={slug} title={node.title} showAds={showAds} />
+        {showAds && (
+          <aside className="hidden lg:block">
+            <div className="sticky top-24 space-y-4">
+              <AdSlot
+                placement="watch_sidebar"
+                zoneId={adConfig.zones.watch_sidebar}
+                scriptUrl={adConfig.scriptUrl}
+                className="min-h-[280px] rounded-lg"
+              />
+            </div>
+          </aside>
+        )}
+      </div>
 
       {showAds && (
         <AdSlot
           placement="watch_bottom"
           zoneId={adConfig.zones.watch_bottom}
           scriptUrl={adConfig.scriptUrl}
+          className="rounded-lg"
         />
       )}
 
       {node.childNodes.length > 0 && (
-        <div>
-          <h2 className="mb-3 text-lg font-semibold text-white">Ramas interactivas</h2>
-          <ul className="space-y-2 text-sm text-zinc-400">
+        <section className="surface-panel p-4">
+          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-[var(--text-muted)]">
+            Elige tu camino
+          </h2>
+          <ul className="space-y-2">
             {node.childNodes.map((c) => (
               <li key={c.id}>
-                <Link href={`/watch/${c.slug}`} className="text-indigo-400 hover:text-indigo-300">
+                <Link
+                  href={`/watch/${c.slug}`}
+                  className="text-sm font-medium text-[var(--accent)] hover:underline"
+                >
                   {c.title}
                 </Link>
-                {c.isPremium && <span className="ml-2 text-amber-400">Premium</span>}
+                {c.isPremium && (
+                  <span className="ml-2 text-xs text-[var(--premium)]">Premium</span>
+                )}
               </li>
             ))}
           </ul>
-          <Link href={`/player?node=${node.id}`} className="mt-3 inline-block text-sm text-indigo-400">
+          <Link
+            href={`/player?node=${node.id}`}
+            className="mt-3 inline-block text-xs text-[var(--text-muted)] hover:text-white"
+          >
             Modo historia completa →
           </Link>
-        </div>
+        </section>
       )}
 
       {related.length > 0 && (
-        <div>
-          <h2 className="mb-4 text-lg font-semibold text-white">Relacionados</h2>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <section>
+          <h2 className="mb-4 border-b border-[var(--border-subtle)] pb-2 text-base font-bold text-white">
+            Vídeos relacionados
+          </h2>
+          <div className="grid grid-cols-2 gap-x-3 gap-y-5 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5">
             {related.map((item) => (
               <VideoCard key={item.slug} item={item as CatalogItem} />
             ))}
           </div>
-        </div>
+        </section>
       )}
-    </section>
+    </div>
   );
 }

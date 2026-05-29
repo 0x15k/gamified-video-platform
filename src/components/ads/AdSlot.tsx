@@ -11,16 +11,11 @@ type Props = {
   label?: string;
 };
 
-/**
- * Renders an ad zone. In production, paste your network's ins tag or loader script.
- * Zone IDs come from env (ExoClick, TrafficJunky, etc.).
- */
 export function AdSlot({ placement, zoneId, scriptUrl, className = "", label }: Props) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!zoneId || !scriptUrl || !ref.current) return;
-    // Networks vary; this hook point loads a global script once per page if needed.
     const existing = document.querySelector(`script[data-ad-loader="${scriptUrl}"]`);
     if (!existing) {
       const s = document.createElement("script");
@@ -34,11 +29,13 @@ export function AdSlot({ placement, zoneId, scriptUrl, className = "", label }: 
   if (!zoneId) {
     return (
       <div
-        className={`flex min-h-[90px] items-center justify-center rounded-lg border border-dashed border-zinc-700 bg-zinc-900/40 text-xs text-zinc-500 ${className}`}
+        className={`flex min-h-[90px] flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-[var(--border)] bg-[var(--bg-card)] text-center text-[11px] text-[var(--text-dim)] ${className}`}
         data-ad-placement={placement}
       >
-        {label ?? `Ad · ${placement}`}
-        <span className="ml-1 hidden sm:inline">(configura ADS_ZONE_* en .env)</span>
+        <span className="font-medium uppercase tracking-wider text-[var(--text-muted)]">
+          {label ?? "Publicidad"}
+        </span>
+        <span className="opacity-70">ADS_ZONE_{placement.toUpperCase()}</span>
       </div>
     );
   }
@@ -46,7 +43,7 @@ export function AdSlot({ placement, zoneId, scriptUrl, className = "", label }: 
   return (
     <div
       ref={ref}
-      className={`ad-slot min-h-[90px] overflow-hidden rounded-lg bg-zinc-900/60 ${className}`}
+      className={`ad-slot min-h-[90px] overflow-hidden rounded-lg bg-[var(--bg-card)] ${className}`}
       data-ad-placement={placement}
       data-ad-zone={zoneId}
       id={`ad-${placement}-${zoneId}`}

@@ -5,8 +5,9 @@ function hashHue(input: string): number {
 }
 
 export function buildThumbnailSvg(title: string, tags: string[] = []): string {
-  const hue = hashHue(title);
-  const hue2 = (hue + 40) % 360;
+  const raw = hashHue(title);
+  const hue = 25 + (raw % 35);
+  const hue2 = hue + 12;
   const tag = tags[0] ?? "video";
   const safeTitle = title.slice(0, 48).replace(/[<>&'"]/g, "");
 

@@ -6,9 +6,9 @@ export default async function PrivacyPage() {
   const adult = vertical === "ADULT";
 
   return (
-    <>
+    <div className="mx-auto max-w-3xl px-4 py-8 sm:px-6">
       <MarketingNav />
-      <article className="max-w-none space-y-4 text-zinc-300">
+      <article className="max-w-none space-y-4 text-[var(--text-muted)]">
         <h1 className="text-2xl font-bold text-white">Política de privacidad</h1>
         {adult ? (
           <>
@@ -47,6 +47,6 @@ export default async function PrivacyPage() {
           </p>
         )}
       </article>
-    </>
+    </div>
   );
 }

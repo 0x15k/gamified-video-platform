@@ -1,7 +1,7 @@
 import Link from "next/link";
-import { MarketingNav } from "@/components/layout/MarketingNav";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { AdProvider } from "@/components/ads/AdContext";
+import { DiscoveryHeader } from "@/components/layout/DiscoveryHeader";
 import { getAdConfig } from "@/lib/ads/config";
 import { getPlatformSettings } from "@/lib/platform/settings";
 import { shouldShowAds } from "@/lib/ads/should-show-ads";
@@ -17,7 +17,10 @@ export async function DiscoveryShell({
   children: React.ReactNode;
   showTopAd?: boolean;
 }) {
-  const [platform, adConfig] = await Promise.all([getPlatformSettings(), Promise.resolve(getAdConfig())]);
+  const [platform, adConfig] = await Promise.all([
+    getPlatformSettings(),
+    Promise.resolve(getAdConfig()),
+  ]);
   const cookieStore = await cookies();
   const token = cookieStore.get(ACCESS_COOKIE)?.value;
   const payload = token ? await verifyAccessToken(token) : null;
@@ -30,44 +33,54 @@ export async function DiscoveryShell({
 
   return (
     <AdProvider config={adConfig}>
-      <MarketingNav siteName={platform.siteName} />
-      {showTopAd && adsOn && (
-        <div className="mb-6">
-          <AdSlot
-            placement="catalog_top"
-            zoneId={adConfig.zones.catalog_top}
-            scriptUrl={adConfig.scriptUrl}
+      <div className="min-h-screen bg-[var(--bg-base)]">
+        <div className="mx-auto max-w-[1540px] px-4 sm:px-6">
+          <DiscoveryHeader
+            siteName={platform.siteName}
+            isAdult={platform.vertical === "ADULT"}
           />
-        </div>
-      )}
-      <div className="flex gap-8">
-        <div className="min-w-0 flex-1">{children}</div>
-        {adsOn && (
-          <aside className="hidden w-48 shrink-0 lg:block">
-            <AdSlot
-              placement="catalog_sidebar"
-              zoneId={adConfig.zones.catalog_sidebar}
-              scriptUrl={adConfig.scriptUrl}
-              className="sticky top-4 min-h-[600px]"
-            />
-          </aside>
-        )}
-      </div>
-      <footer className="mt-12 border-t border-zinc-800 pt-6 text-center text-xs text-zinc-600">
-        <Link href="/legal/terms" className="hover:text-zinc-400">
-          Términos
-        </Link>
-        {" · "}
-        <Link href="/legal/privacy" className="hover:text-zinc-400">
-          Privacidad
-        </Link>
-        {platform.vertical === "ADULT" && (
-          <>
+          {showTopAd && adsOn && (
+            <div className="mb-4 overflow-hidden rounded-lg">
+              <AdSlot
+                placement="catalog_top"
+                zoneId={adConfig.zones.catalog_top}
+                scriptUrl={adConfig.scriptUrl}
+                className="min-h-[90px]"
+              />
+            </div>
+          )}
+          <div className="flex gap-6 pb-12">
+            <div className="min-w-0 flex-1">{children}</div>
+            {adsOn && (
+              <aside className="hidden w-40 shrink-0 xl:block 2xl:w-52">
+                <div className="sticky top-24">
+                  <AdSlot
+                    placement="catalog_sidebar"
+                    zoneId={adConfig.zones.catalog_sidebar}
+                    scriptUrl={adConfig.scriptUrl}
+                    className="min-h-[560px] rounded-lg"
+                  />
+                </div>
+              </aside>
+            )}
+          </div>
+          <footer className="border-t border-[var(--border-subtle)] py-8 text-center text-xs text-[var(--text-dim)]">
+            <Link href="/legal/terms" className="hover:text-[var(--accent)]">
+              Términos
+            </Link>
             {" · "}
-            <span>+18</span>
-          </>
-        )}
-      </footer>
+            <Link href="/legal/privacy" className="hover:text-[var(--accent)]">
+              Privacidad
+            </Link>
+            {platform.vertical === "ADULT" && (
+              <>
+                {" · "}
+                <span className="text-[var(--text-muted)]">Solo +18</span>
+              </>
+            )}
+          </footer>
+        </div>
+      </div>
     </AdProvider>
   );
 }

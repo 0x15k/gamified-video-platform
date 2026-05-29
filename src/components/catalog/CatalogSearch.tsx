@@ -1,18 +1,16 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { FormEvent, useState } from "react";
 
 const SORTS = [
-  { value: "trending", label: "Trending" },
-  { value: "recent", label: "Recientes" },
-  { value: "duration", label: "Duración" },
+  { value: "trending", label: "🔥 Trending" },
+  { value: "recent", label: "Nuevos" },
+  { value: "duration", label: "Más largos" },
 ] as const;
 
 export function CatalogSearch({ tags }: { tags: { tag: string; count: number }[] }) {
   const router = useRouter();
   const params = useSearchParams();
-  const [q, setQ] = useState(params.get("q") ?? "");
 
   function apply(updates: Record<string, string | null>) {
     const next = new URLSearchParams(params.toString());
@@ -24,56 +22,43 @@ export function CatalogSearch({ tags }: { tags: { tag: string; count: number }[]
     router.push(`/catalog?${next.toString()}`);
   }
 
-  function onSubmit(e: FormEvent) {
-    e.preventDefault();
-    apply({ q: q.trim() || null });
-  }
-
   const activeTag = params.get("tag");
   const activeSort = params.get("sort") ?? "trending";
+  const activeQ = params.get("q");
 
   return (
-    <div className="space-y-4">
-      <form onSubmit={onSubmit} className="flex gap-2">
-        <input
-          type="search"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
-          placeholder="Buscar por título o tag (ej. ai, animation)…"
-          className="min-w-0 flex-1 rounded-lg border border-zinc-700 bg-zinc-950 px-4 py-2 text-sm text-white placeholder:text-zinc-600"
-        />
-        <button
-          type="submit"
-          className="shrink-0 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-500"
-        >
-          Buscar
-        </button>
-      </form>
+    <div className="mb-6 space-y-4">
+      {activeQ && (
+        <p className="text-sm text-[var(--text-muted)]">
+          Resultados para{" "}
+          <span className="font-medium text-white">&quot;{activeQ}&quot;</span>
+          <button
+            type="button"
+            onClick={() => apply({ q: null })}
+            className="ml-2 text-[var(--accent)] hover:underline"
+          >
+            Limpiar
+          </button>
+        </p>
+      )}
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs text-zinc-500">Orden:</span>
         {SORTS.map((s) => (
           <button
             key={s.value}
             type="button"
             onClick={() => apply({ sort: s.value })}
-            className={`rounded-full px-3 py-1 text-xs ${
-              activeSort === s.value
-                ? "bg-indigo-600/30 text-indigo-300"
-                : "bg-zinc-800 text-zinc-400 hover:text-white"
-            }`}
+            className={`tag-chip ${activeSort === s.value ? "tag-chip-active" : ""}`}
           >
             {s.label}
           </button>
         ))}
       </div>
       {tags.length > 0 && (
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 border-t border-[var(--border-subtle)] pt-4">
           <button
             type="button"
             onClick={() => apply({ tag: null })}
-            className={`rounded-full px-3 py-1 text-xs ${
-              !activeTag ? "bg-zinc-100 text-zinc-900" : "bg-zinc-800 text-zinc-400"
-            }`}
+            className={`tag-chip ${!activeTag ? "tag-chip-active" : ""}`}
           >
             Todos
           </button>
@@ -82,13 +67,10 @@ export function CatalogSearch({ tags }: { tags: { tag: string; count: number }[]
               key={tag}
               type="button"
               onClick={() => apply({ tag })}
-              className={`rounded-full px-3 py-1 text-xs ${
-                activeTag === tag
-                  ? "bg-indigo-600/30 text-indigo-300"
-                  : "bg-zinc-800 text-zinc-400 hover:text-white"
-              }`}
+              className={`tag-chip ${activeTag === tag ? "tag-chip-active" : ""}`}
             >
-              #{tag} ({count})
+              #{tag}
+              <span className="ml-1 opacity-60">({count})</span>
             </button>
           ))}
         </div>

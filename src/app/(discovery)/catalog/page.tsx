@@ -1,5 +1,4 @@
 import { Suspense } from "react";
-import { PageHeader } from "@/components/layout/PageHeader";
 import { CatalogSearch } from "@/components/catalog/CatalogSearch";
 import { CatalogGrid } from "@/components/catalog/CatalogGrid";
 import { AdSlot } from "@/components/ads/AdSlot";
@@ -22,17 +21,15 @@ export default async function CatalogPage() {
 
   return (
     <section>
-      <PageHeader
-        title="Catálogo"
-        description={
-          platform.vertical === "ADULT"
-            ? "Descubre contenido por tags y trending. Los anuncios financian el acceso gratuito."
-            : "Vídeos publicados en la plataforma."
-        }
-      />
+      <div className="mb-6">
+        <h1 className="text-xl font-bold text-white sm:text-2xl">Vídeos populares</h1>
+        <p className="mt-1 text-sm text-[var(--text-muted)]">
+          Trending, tags y contenido interactivo
+        </p>
+      </div>
       <CatalogSearch tags={tags} />
       {adsOn && (
-        <div className="my-6">
+        <div className="mb-5 overflow-hidden rounded-lg">
           <AdSlot
             placement="catalog_inline"
             zoneId={adConfig.zones.catalog_inline}
@@ -40,7 +37,18 @@ export default async function CatalogPage() {
           />
         </div>
       )}
-      <Suspense fallback={<p className="text-zinc-500">Cargando vídeos…</p>}>
+      <Suspense
+        fallback={
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div
+                key={i}
+                className="aspect-video animate-pulse rounded-lg bg-[var(--bg-card)]"
+              />
+            ))}
+          </div>
+        }
+      >
         <CatalogGrid />
       </Suspense>
     </section>

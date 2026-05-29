@@ -32,7 +32,6 @@ export function WatchPlayer({ slug, title, showAds }: Props) {
       if (disposed) return;
 
       setPreviewSec(data.previewSec ?? null);
-
       void fetch(`/api/catalog/${slug}/view`, { method: "POST" });
 
       const video = videoRef.current;
@@ -43,9 +42,7 @@ export function WatchPlayer({ slug, title, showAds }: Props) {
         const onTime = () => {
           if (video.currentTime >= data.previewSec) {
             video.pause();
-            setError(
-              "Vista previa finalizada. Inicia sesión o pasa a Premium para ver el contenido completo.",
-            );
+            setError("preview_end");
           }
         };
         video.addEventListener("timeupdate", onTime);
@@ -64,46 +61,57 @@ export function WatchPlayer({ slug, title, showAds }: Props) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       {showAds && showPreroll && (
-        <div className="space-y-2">
+        <div className="space-y-1">
           <AdSlot
             placement="watch_preroll"
             zoneId={zone("watch_preroll")}
             scriptUrl={adConfig.scriptUrl}
-            label="Anuncio previo"
+            label="Anuncio"
+            className="min-h-[120px]"
           />
           <button
             type="button"
             onClick={() => setShowPreroll(false)}
-            className="text-xs text-zinc-500 hover:text-zinc-300"
+            className="text-xs text-[var(--text-dim)] hover:text-[var(--accent)]"
           >
             Saltar anuncio →
           </button>
         </div>
       )}
-      <div className="overflow-hidden rounded-xl border border-zinc-800 bg-black">
+      <div className="overflow-hidden rounded-xl bg-black ring-1 ring-[var(--border)]">
         <video
           ref={videoRef}
           controls
           playsInline
-          className="aspect-video w-full"
+          className="aspect-video w-full bg-black"
           title={title}
         />
       </div>
-      {previewSec && (
-        <p className="text-sm text-amber-300/90">
-          Vista previa: {previewSec}s ·{" "}
-          <Link href="/login" className="underline">
-            Iniciar sesión
-          </Link>{" "}
-          o{" "}
-          <Link href="/upgrade" className="underline">
-            Premium sin anuncios
-          </Link>
+      {previewSec && !error && (
+        <p className="text-xs text-[var(--text-muted)]">
+          Vista previa · {previewSec}s
         </p>
       )}
-      {error && <p className="text-sm text-red-300">{error}</p>}
+      {error === "preview_end" && (
+        <div className="surface-panel border-[var(--accent)]/30 p-4 text-sm">
+          <p className="font-medium text-white">Vista previa finalizada</p>
+          <p className="mt-1 text-[var(--text-muted)]">
+            <Link href="/login" className="text-[var(--accent)] hover:underline">
+              Inicia sesión
+            </Link>{" "}
+            o{" "}
+            <Link href="/upgrade" className="text-[var(--premium)] hover:underline">
+              pásate a Premium
+            </Link>{" "}
+            para ver el vídeo completo sin anuncios.
+          </p>
+        </div>
+      )}
+      {error && error !== "preview_end" && (
+        <p className="text-sm text-red-400">{error}</p>
+      )}
     </div>
   );
 }

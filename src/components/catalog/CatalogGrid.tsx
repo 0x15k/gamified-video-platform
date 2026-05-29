@@ -69,7 +69,7 @@ export function CatalogGrid() {
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-2 gap-x-3 gap-y-5 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5">
         {items.map((item) => (
           <VideoCard key={`${item.slug}-${item.title}`} item={item} />
         ))}

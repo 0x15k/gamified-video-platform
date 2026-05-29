@@ -21,9 +21,12 @@ export function UserShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen">
-      <header className="sticky top-0 z-40 border-b border-zinc-800/80 bg-zinc-950/80 backdrop-blur-md">
+      <header className="sticky top-0 z-40 border-b border-[var(--border-subtle)] bg-[var(--bg-base)]/90 backdrop-blur-md">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
-          <Link href="/dashboard" className="font-semibold text-white">
+          <Link href="/dashboard" className="flex items-center gap-2 font-semibold text-white">
+            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-[var(--accent)] text-xs font-black text-black">
+              ▶
+            </span>
             {siteName}
           </Link>
           <UserMenu />
@@ -47,13 +50,13 @@ export function UserShell({ children }: { children: React.ReactNode }) {
                         href={item.href}
                         className={`rounded-lg px-3 py-2 text-sm transition ${
                           active
-                            ? "bg-indigo-600/15 text-indigo-300"
-                            : "text-zinc-400 hover:bg-zinc-900 hover:text-white"
+                            ? "bg-[var(--accent-muted)] text-[var(--accent)]"
+                            : "text-[var(--text-muted)] hover:bg-[var(--bg-card)] hover:text-white"
                         }`}
                       >
                         {item.label}
                         {item.badge === "notifications" && unread > 0 && (
-                          <span className="ml-2 rounded-full bg-indigo-600 px-1.5 text-[10px] text-white">
+                          <span className="ml-2 rounded-full bg-[var(--accent)] px-1.5 text-[10px] font-bold text-black">
                             {unread}
                           </span>
                         )}

@@ -1,9 +1,9 @@
 import type { SubscriptionPlan } from "@/lib/rbac/types";
 
 const STYLES: Record<SubscriptionPlan, string> = {
-  FREE: "bg-zinc-800 text-zinc-300",
-  PREMIUM: "bg-indigo-600/30 text-indigo-300",
-  WHALE: "bg-amber-600/20 text-amber-300",
+  FREE: "bg-[var(--bg-hover)] text-[var(--text-muted)]",
+  PREMIUM: "bg-[var(--accent-muted)] text-[var(--accent)]",
+  WHALE: "bg-amber-500/20 text-[var(--premium)]",
 };
 
 const LABELS: Record<SubscriptionPlan, string> = {

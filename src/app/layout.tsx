@@ -29,11 +29,11 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-zinc-950 text-zinc-100 antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} min-h-screen antialiased`}
       >
         <AuthProvider>
           <AgeGateBanner />
-          <main className="mx-auto max-w-6xl px-4 py-8">{children}</main>
+          <main>{children}</main>
         </AuthProvider>
       </body>
     </html>

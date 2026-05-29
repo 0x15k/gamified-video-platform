@@ -33,31 +33,38 @@ export function VideoCard({ item }: { item: CatalogItem }) {
   const thumb = thumbnailSrc(item);
 
   return (
-    <Link
-      href={`/watch/${item.slug}`}
-      className="group block overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/40 transition hover:border-zinc-600"
-    >
-      <div className="relative aspect-video bg-zinc-800">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={thumb} alt="" className="h-full w-full object-cover" loading="lazy" />
-        {duration && (
-          <span className="absolute bottom-2 right-2 rounded bg-black/80 px-1.5 py-0.5 text-xs text-white">
-            {duration}
-          </span>
-        )}
-        {item.isPremium && (
-          <span className="absolute left-2 top-2 rounded bg-amber-600/90 px-1.5 py-0.5 text-[10px] font-medium uppercase text-white">
-            Premium
-          </span>
-        )}
+    <Link href={`/watch/${item.slug}`} className="group block">
+      <div className="relative overflow-hidden rounded-lg bg-[var(--bg-hover)] ring-1 ring-[var(--border-subtle)] transition duration-200 group-hover:ring-[var(--accent)]/50">
+        <div className="relative aspect-[16/9] overflow-hidden">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={thumb}
+            alt=""
+            className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+            loading="lazy"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition group-hover:opacity-100" />
+          {duration && (
+            <span className="absolute bottom-1.5 right-1.5 rounded bg-black/85 px-1.5 py-0.5 text-[11px] font-semibold text-white">
+              {duration}
+            </span>
+          )}
+          {item.isPremium && (
+            <span className="absolute left-1.5 top-1.5 rounded bg-[var(--premium)] px-1.5 py-0.5 text-[10px] font-bold uppercase text-black">
+              HD
+            </span>
+          )}
+        </div>
       </div>
-      <div className="p-3">
-        <h3 className="line-clamp-2 text-sm font-medium text-white group-hover:text-indigo-300">
+      <div className="mt-2 px-0.5">
+        <h3 className="line-clamp-2 text-[13px] font-medium leading-snug text-[var(--text)] group-hover:text-[var(--accent)]">
           {item.title}
         </h3>
-        <p className="mt-1 text-xs text-zinc-500">
+        <p className="mt-0.5 text-[11px] text-[var(--text-dim)]">
           {formatViews(item.viewCount)} vistas
-          {item.tags[0] ? ` · #${item.tags[0]}` : ""}
+          {item.tags[0] && (
+            <span className="text-[var(--text-muted)]"> · #{item.tags[0]}</span>
+          )}
         </p>
       </div>
     </Link>

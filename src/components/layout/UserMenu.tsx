@@ -19,25 +19,28 @@ export function UserMenu() {
       <div className="group relative">
         <button
           type="button"
-          className="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-600 text-sm font-semibold text-white"
+          className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--accent)] text-sm font-bold text-black"
           aria-label="Menú de cuenta"
         >
           {initial}
         </button>
-        <div className="invisible absolute right-0 z-50 mt-2 w-52 rounded-xl border border-zinc-800 bg-zinc-950 py-1 opacity-0 shadow-xl transition group-hover:visible group-hover:opacity-100">
-          <p className="truncate px-3 py-2 text-xs text-zinc-500">{user.email}</p>
-          <Link href="/settings" className="block px-3 py-2 text-sm text-zinc-300 hover:bg-zinc-900">
+        <div className="invisible absolute right-0 z-50 mt-2 w-52 rounded-xl border border-[var(--border)] bg-[var(--bg-card)] py-1 opacity-0 shadow-xl transition group-hover:visible group-hover:opacity-100">
+          <p className="truncate px-3 py-2 text-xs text-[var(--text-dim)]">{user.email}</p>
+          <Link href="/catalog" className="block px-3 py-2 text-sm text-[var(--text-muted)] hover:bg-[var(--bg-hover)] hover:text-white">
+            Catálogo
+          </Link>
+          <Link href="/settings" className="block px-3 py-2 text-sm text-[var(--text-muted)] hover:bg-[var(--bg-hover)] hover:text-white">
             Ajustes
           </Link>
           {isAdmin(user.accountType) && (
-            <Link href="/admin" className="block px-3 py-2 text-sm text-violet-300 hover:bg-zinc-900">
+            <Link href="/admin" className="block px-3 py-2 text-sm text-violet-400 hover:bg-[var(--bg-hover)]">
               Panel staff →
             </Link>
           )}
           <button
             type="button"
             onClick={() => void logout().then(() => (window.location.href = "/"))}
-            className="block w-full px-3 py-2 text-left text-sm text-zinc-400 hover:bg-zinc-900"
+            className="block w-full px-3 py-2 text-left text-sm text-[var(--text-dim)] hover:bg-[var(--bg-hover)]"
           >
             Cerrar sesión
           </button>
