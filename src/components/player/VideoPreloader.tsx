@@ -6,10 +6,10 @@ import { usePlayerStore } from "@/stores/usePlayerStore";
 import { preloadVideoChunk } from "@/lib/video/preload";
 
 type Props = {
-  children: ChildOption[];
+  options: ChildOption[];
 };
 
-export function VideoPreloader({ children }: Props) {
+export function VideoPreloader({ options }: Props) {
   const setPreload = usePlayerStore((s) => s.setPreload);
 
   useEffect(() => {
@@ -17,7 +17,7 @@ export function VideoPreloader({ children }: Props) {
 
     async function preloadAll() {
       await Promise.all(
-        children.map(async (child) => {
+        options.map(async (child) => {
           const blobUrl = await preloadVideoChunk(child.streamUrl);
           if (!cancelled && blobUrl) {
             setPreload(child.id, blobUrl);
@@ -26,18 +26,18 @@ export function VideoPreloader({ children }: Props) {
       );
     }
 
-    if (children.length > 0) {
+    if (options.length > 0) {
       void preloadAll();
     }
 
     return () => {
       cancelled = true;
     };
-  }, [children, setPreload]);
+  }, [options, setPreload]);
 
   return (
     <div className="hidden" aria-hidden>
-      {children.map((c) => (
+      {options.map((c) => (
         <video key={c.id} preload="auto" muted playsInline src={c.streamUrl} />
       ))}
     </div>

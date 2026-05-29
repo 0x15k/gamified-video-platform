@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { requireAuth, requireRateLimit, jsonError, getAuthUser } from "@/lib/security/api-guard";
+import { requireRateLimit, jsonError, getAuthUser } from "@/lib/security/api-guard";
 import { applySecurityHeaders } from "@/lib/security/headers";
 import { trackEvent } from "@/lib/analytics/track";
 
