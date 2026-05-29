@@ -31,7 +31,7 @@ const PUBLIC_PAGES = new Set([
   "/age-gate",
 ]);
 
-const DISCOVERY_PAGE = /^\/(catalog|watch|tag|model|models)(\/|$)/;
+const DISCOVERY_PAGE = /^\/(catalog|watch|tag|model|models|stories)(\/|$)/;
 const PUBLIC_API_CATALOG = /^\/api\/catalog(\/|$)/;
 const PUBLIC_API_MODEL = /^\/api\/model\//;
 const PUBLIC_API_THUMBNAIL = /^\/api\/thumbnail\//;

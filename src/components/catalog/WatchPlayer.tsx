@@ -31,9 +31,11 @@ export function WatchPlayer({ slug, title, showAds }: Props) {
     let disposed = false;
 
     async function load() {
+      setError("");
       const res = await fetch(`/api/catalog/${slug}/play`);
       if (!res.ok) {
-        setError("No se pudo cargar el vídeo.");
+        const data = await res.json().catch(() => ({}));
+        setError(typeof data.error === "string" ? data.error : "No se pudo cargar el vídeo.");
         return;
       }
       const data = (await res.json()) as PlayPayload;
@@ -41,23 +43,6 @@ export function WatchPlayer({ slug, title, showAds }: Props) {
 
       setPlay(data);
       void fetch(`/api/catalog/${slug}/view`, { method: "POST" });
-
-      if (data.sourceType === "EMBED" || !data.streamUrl) return;
-
-      const video = videoRef.current;
-      if (!video) return;
-      video.src = data.streamUrl;
-
-      if (data.previewSec) {
-        const onTime = () => {
-          if (video.currentTime >= data.previewSec!) {
-            video.pause();
-            setError("preview_end");
-          }
-        };
-        video.addEventListener("timeupdate", onTime);
-        return () => video.removeEventListener("timeupdate", onTime);
-      }
     }
 
     void load();
@@ -65,6 +50,40 @@ export function WatchPlayer({ slug, title, showAds }: Props) {
       disposed = true;
     };
   }, [slug]);
+
+  useEffect(() => {
+    if (play?.sourceType !== "FILE" || !play.streamUrl) return;
+
+    const video = videoRef.current;
+    if (!video) return;
+
+    setError("");
+    video.src = play.streamUrl;
+    void video.load();
+
+    const onError = () => {
+      setError("playback_failed");
+    };
+
+    video.addEventListener("error", onError);
+
+    let removePreview: (() => void) | undefined;
+    if (play.previewSec) {
+      const onTime = () => {
+        if (video.currentTime >= play.previewSec!) {
+          video.pause();
+          setError("preview_end");
+        }
+      };
+      video.addEventListener("timeupdate", onTime);
+      removePreview = () => video.removeEventListener("timeupdate", onTime);
+    }
+
+    return () => {
+      video.removeEventListener("error", onError);
+      removePreview?.();
+    };
+  }, [play]);
 
   function zone(placement: AdPlacement) {
     return adConfig.zones[placement];
@@ -155,7 +174,19 @@ export function WatchPlayer({ slug, title, showAds }: Props) {
           </p>
         </div>
       )}
-      {error && error !== "preview_end" && (
+      {error === "playback_failed" && (
+        <div className="surface-panel border-red-500/30 p-4 text-sm">
+          <p className="font-medium text-white">Vídeo no disponible</p>
+          <p className="mt-1 text-[var(--text-muted)]">
+            Este clip no tiene embed ni archivo válido. En{" "}
+            <Link href="/admin/content" className="text-[var(--accent)] hover:underline">
+              Admin → Contenido
+            </Link>{" "}
+            pega la URL <code className="text-xs">https://www.pornhub.com/embed/…</code>
+          </p>
+        </div>
+      )}
+      {error && error !== "preview_end" && error !== "playback_failed" && (
         <p className="text-sm text-red-400">{error}</p>
       )}
     </div>

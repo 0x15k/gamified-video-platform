@@ -35,7 +35,10 @@ export function DecisionOverlay({ options, tokensBalance, userPlan, onSelect }: 
                 onClick={() => onSelect(opt)}
                 className="rounded-lg border border-white/20 bg-zinc-900/90 px-4 py-3 text-left text-white transition hover:border-indigo-400 hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                <span className="font-semibold">{opt.title}</span>
+                <span className="font-semibold">{opt.choiceLabel ?? opt.title}</span>
+                {opt.choiceLabel && opt.choiceLabel !== opt.title && (
+                  <span className="mt-0.5 block text-xs text-zinc-400">{opt.title}</span>
+                )}
                 {opt.isPremium && (
                   <span className="mt-1 block text-xs text-amber-300">
                     Premium · {opt.tokenCost} tokens

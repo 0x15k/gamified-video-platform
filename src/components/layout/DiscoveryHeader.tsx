@@ -64,6 +64,16 @@ export function DiscoveryHeader({ siteName, isAdult }: Props) {
 
         <nav className="hidden shrink-0 items-center gap-1 lg:flex">
           <Link
+            href="/stories"
+            className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
+              pathname.startsWith("/stories")
+                ? "bg-[var(--accent-muted)] text-[var(--accent)]"
+                : "text-[var(--text-muted)] hover:text-white"
+            }`}
+          >
+            Historias
+          </Link>
+          <Link
             href="/models"
             className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
               pathname.startsWith("/model")
@@ -77,11 +87,11 @@ export function DiscoveryHeader({ siteName, isAdult }: Props) {
             href="/catalog"
             className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
               pathname.startsWith("/catalog") || pathname.startsWith("/watch")
-                ? "bg-[var(--accent-muted)] text-[var(--accent)]"
+                ? "text-[var(--text-muted)] hover:text-white"
                 : "text-[var(--text-muted)] hover:text-white"
             }`}
           >
-            Catálogo
+            Clips
           </Link>
           <Link
             href="/upgrade"

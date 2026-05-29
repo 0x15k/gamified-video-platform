@@ -35,6 +35,7 @@ export async function listCatalog(params: CatalogListParams) {
   const where: Prisma.VideoNodeWhereInput = {
     published: true,
     parentNodeId: null,
+    contentKind: "CLIP",
   };
 
   const aiTags = ["ai", "ia", "animation", "animated", "3d", "cgi", "generated"];

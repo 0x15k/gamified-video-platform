@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { LIVE_FEATURE_ENABLED } from "@/lib/platform/features";
 
 export type ModelCardItem = {
   slug: string;
@@ -37,7 +38,7 @@ export function ModelCard({ model }: { model: ModelCardItem }) {
               <span className="rounded bg-[var(--accent)]/20 px-1.5 py-0.5 text-[9px] font-bold uppercase text-[var(--accent)]">
                 IA
               </span>
-              {model.isLive && (
+              {LIVE_FEATURE_ENABLED && model.isLive && (
                 <span className="rounded bg-red-500/20 px-1.5 py-0.5 text-[9px] font-bold uppercase text-red-400">
                   Live
                 </span>

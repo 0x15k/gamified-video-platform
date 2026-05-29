@@ -47,6 +47,11 @@ enum VideoSourceType {
   EMBED
 }
 
+enum ContentKind {
+  CLIP
+  STORY
+}
+
 model User {
   id            String   @id @default(cuid())
   email         String   @unique
@@ -103,6 +108,8 @@ model VideoNode {
   slug         String           @unique
   summary      String?
   sourceType   VideoSourceType  @default(FILE) @map("source_type")
+  contentKind  ContentKind      @default(CLIP) @map("content_kind")
+  choiceLabel  String?          @map("choice_label")
   urlHash      String           @default("embed") @map("url_hash")
   embedUrl     String?          @map("embed_url")
   tags         String[]         @default([])

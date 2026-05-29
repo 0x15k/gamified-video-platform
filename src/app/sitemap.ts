@@ -25,7 +25,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     { url: base, lastModified: now, changeFrequency: "daily", priority: 1 },
     { url: `${base}/catalog`, lastModified: now, changeFrequency: "hourly", priority: 0.9 },
-    { url: `${base}/models`, lastModified: now, changeFrequency: "daily", priority: 0.85 },
+    { url: `${base}/stories`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
     ...models.map((m) => ({
       url: `${base}/model/${m.slug}`,
       lastModified: m.updatedAt ?? now,

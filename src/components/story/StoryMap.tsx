@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 type StoryNode = {
   id: string;
   title: string;
+  choiceLabel: string | null;
   isPremium: boolean;
   tokenCost: number;
   durationSec: number | null;
@@ -43,8 +44,11 @@ export function StoryMap() {
         <div className="mb-2 rounded-lg border border-zinc-800 bg-zinc-900/60 p-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <span className="font-medium text-white">{node.title}</span>
+            {node.choiceLabel && (
+              <span className="ml-2 text-xs text-violet-300">«{node.choiceLabel}»</span>
+            )}
             {node.isPremium && (
-              <span className="text-xs text-amber-400">Premium · {node.tokenCost} tokens</span>
+              <span className="ml-2 text-xs text-amber-400">Premium · {node.tokenCost} tokens</span>
             )}
           </div>
           <div className="mt-2 flex flex-wrap gap-3">

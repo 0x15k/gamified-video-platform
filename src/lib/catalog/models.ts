@@ -42,6 +42,7 @@ export async function listModelVideos(modelId: string, limit = 48) {
     where: {
       modelId,
       published: true,
+      contentKind: "STORY",
       parentNodeId: null,
     },
     orderBy: [{ viewCount: "desc" }, { createdAt: "desc" }],

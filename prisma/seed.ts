@@ -7,7 +7,6 @@ import { Pool } from "pg";
 import { PrismaClient } from "../src/generated/prisma/client";
 import bcrypt from "bcryptjs";
 import { buildNodeSlug } from "../src/lib/catalog/slug";
-import { canonicalizeEmbedUrl } from "../src/lib/video/embed";
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
@@ -96,29 +95,29 @@ async function main() {
         name: "Luna AI",
         bio: "Animación 3D estilo webcam. Personaje 100% generado por IA.",
         tags: ["ai", "3d", "webcam"],
-        isLive: true,
+        isLive: false,
         viewCount: 42000,
       },
       {
         slug: "nova-ai",
         name: "Nova",
-        bio: "Loops cortos y clips premium. Estética cyber-anime.",
-        tags: ["ai", "animation", "premium"],
+        bio: "Historias cyber-anime con ramas premium.",
+        tags: ["ai", "animation", "story"],
         isLive: false,
         viewCount: 28500,
       },
       {
         slug: "mira-ai",
         name: "Mira",
-        bio: "Render hiperrealista. Contenido exclusivo en HD.",
-        tags: ["ai", "cgi", "hd"],
-        isLive: true,
+        bio: "Render hiperrealista en historias interactivas.",
+        tags: ["ai", "cgi", "story"],
+        isLive: false,
         viewCount: 51200,
       },
       {
         slug: "zara-ai",
         name: "Zara",
-        bio: "Personaje interactivo con historias ramificadas.",
+        bio: "Personaje interactivo con finales alternativos.",
         tags: ["ai", "interactive", "story"],
         isLive: false,
         viewCount: 19300,
@@ -126,90 +125,17 @@ async function main() {
     ].map((m) => prisma.aiModel.create({ data: { ...m, published: true } })),
   );
 
-  const [luna, nova, mira] = aiModels;
-
-  const demoEmbeds = (process.env.DEMO_EMBED_URLS ?? "")
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
-
-  const catalogSeeds = [
-    {
-      title: "AI Girl — Demo 1",
-      summary: "Embed de prueba (solo contenido IA).",
-      tags: ["ai", "animation", "3d"],
-      isPremium: false,
-      viewCount: 8420,
-      modelId: luna.id,
-    },
-    {
-      title: "AI Girl — Demo 2 (premium)",
-      summary: "Embed premium de prueba; requiere tokens o plan Premium.",
-      tags: ["ai", "animation", "premium"],
-      isPremium: true,
-      tokenCost: 25,
-      previewSec: 20,
-      viewCount: 12500,
-      modelId: nova.id,
-    },
-    {
-      title: "Luna — sesión webcam simulada",
-      summary: "Clip estilo live cam IA.",
-      tags: ["ai", "webcam", "3d"],
-      isPremium: false,
-      viewCount: 15600,
-      modelId: luna.id,
-    },
-    {
-      title: "Mira — render HD exclusivo",
-      summary: "Vista previa gratuita; completo con Premium.",
-      tags: ["ai", "cgi", "hd"],
-      isPremium: true,
-      tokenCost: 15,
-      previewSec: 25,
-      viewCount: 22100,
-      modelId: mira.id,
-    },
-  ];
-
-  for (let i = 0; i < catalogSeeds.length; i++) {
-    const cfg = catalogSeeds[i];
-    const rawUrl = demoEmbeds[i];
-    const embedUrl = rawUrl ? canonicalizeEmbedUrl(rawUrl) : null;
-
-    await prisma.videoNode.create({
-      data: {
-        title: cfg.title,
-        slug: slug(cfg.title),
-        summary: cfg.summary,
-        sourceType: embedUrl ? "EMBED" : "FILE",
-        urlHash: embedUrl ? "embed" : i === 0 ? "intro" : "premium-path",
-        embedUrl,
-        tags: cfg.tags,
-        vertical: "ADULT",
-        durationSec: 60,
-        viewCount: cfg.viewCount,
-        isPremium: cfg.isPremium,
-        tokenCost: "tokenCost" in cfg ? cfg.tokenCost : 0,
-        previewSec: "previewSec" in cfg ? cfg.previewSec : 30,
-        published: embedUrl ? true : true,
-        modelId: cfg.modelId,
-      },
-    });
-  }
-
-  if (demoEmbeds.length === 0) {
-    console.log(
-      "  Tip: define DEMO_EMBED_URLS=https://www.pornhub.com/embed/…,https://… en .env y vuelve a seedear para catálogo embed.",
-    );
-  }
+  const [luna] = aiModels;
 
   const root = await prisma.videoNode.create({
     data: {
-      title: "Historia interactiva — Episodio 1",
-      slug: slug("Historia interactiva Episodio 1"),
-      summary: "Narrativa ramificada con decisiones. Modo historia en /player.",
+      title: "Luna — Noche en la ciudad",
+      slug: slug("Luna Noche en la ciudad"),
+      summary: "Historia IA ramificada. Sube tus MP4 reales en Admin → Historias.",
       urlHash: "intro",
+      contentKind: "STORY",
+      sourceType: "FILE",
+      modelId: luna.id,
       tags: ["ai", "interactive", "story"],
       vertical: "ADULT",
       durationSec: 30,
@@ -221,11 +147,15 @@ async function main() {
 
   const pathA = await prisma.videoNode.create({
     data: {
-      title: "Camino valiente",
-      slug: slug("Camino valiente"),
+      title: "Luna acepta la invitación",
+      slug: slug("Luna acepta invitacion"),
+      choiceLabel: "Aceptar la invitación",
       urlHash: "path-a",
+      contentKind: "STORY",
+      sourceType: "FILE",
       parentNodeId: root.id,
-      tags: ["interactive"],
+      modelId: luna.id,
+      tags: ["ai", "story"],
       vertical: "ADULT",
       durationSec: 20,
       isPremium: false,
@@ -235,11 +165,15 @@ async function main() {
 
   const pathB = await prisma.videoNode.create({
     data: {
-      title: "Camino premium",
-      slug: slug("Camino premium"),
+      title: "Luna prefiere quedarse",
+      slug: slug("Luna prefiere quedarse"),
+      choiceLabel: "Quedarse en casa",
       urlHash: "premium-path",
+      contentKind: "STORY",
+      sourceType: "FILE",
       parentNodeId: root.id,
-      tags: ["premium", "interactive"],
+      modelId: luna.id,
+      tags: ["ai", "story", "premium"],
       vertical: "ADULT",
       durationSec: 20,
       isPremium: true,
@@ -251,10 +185,14 @@ async function main() {
 
   await prisma.videoNode.create({
     data: {
-      title: "Final valiente",
-      slug: slug("Final valiente"),
+      title: "Final — conexión profunda",
+      slug: slug("Final conexion profunda"),
+      choiceLabel: null,
       urlHash: "ending-a",
+      contentKind: "STORY",
+      sourceType: "FILE",
       parentNodeId: pathA.id,
+      modelId: luna.id,
       vertical: "ADULT",
       durationSec: 15,
       isPremium: false,
@@ -264,10 +202,14 @@ async function main() {
 
   await prisma.videoNode.create({
     data: {
-      title: "Final exclusivo",
-      slug: slug("Final exclusivo"),
+      title: "Final — noche exclusiva",
+      slug: slug("Final noche exclusiva"),
+      choiceLabel: null,
       urlHash: "path-b",
+      contentKind: "STORY",
+      sourceType: "FILE",
       parentNodeId: pathB.id,
+      modelId: luna.id,
       vertical: "ADULT",
       durationSec: 15,
       isPremium: true,
@@ -291,7 +233,7 @@ async function main() {
     data: {
       userId: user.id,
       title: "Bienvenido",
-      body: "Explora el catálogo público o inicia sesión para guardar progreso y favoritos.",
+      body: "Explora historias interactivas en /stories o crea las tuyas en Admin.",
     },
   });
 
@@ -299,7 +241,8 @@ async function main() {
   console.log(`  Models: ${aiModels.length} IA profiles at /models`);
   console.log("  Demo:  demo@local.dev / Demo1234");
   console.log("  Admin: admin@local.dev / Admin1234");
-  console.log("  Catalog: http://localhost:3000/catalog");
+  console.log("  Stories: http://localhost:3000/stories");
+  console.log("  Admin historias: http://localhost:3000/admin/content");
 }
 
 main()

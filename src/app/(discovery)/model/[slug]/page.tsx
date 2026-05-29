@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { LIVE_FEATURE_ENABLED } from "@/lib/platform/features";
 import { getModelBySlug, listModelVideos } from "@/lib/catalog/models";
-import { VideoCard, type CatalogItem } from "@/components/catalog/VideoCard";
 import { getSiteUrl } from "@/lib/platform/site-url";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -50,7 +50,7 @@ export default async function ModelProfilePage({ params }: Props) {
             <span className="rounded bg-[var(--accent)] px-2 py-0.5 text-[10px] font-bold uppercase text-black">
               IA
             </span>
-            {model.isLive && (
+            {LIVE_FEATURE_ENABLED && model.isLive && (
               <span className="rounded bg-red-500/20 px-2 py-0.5 text-[10px] font-bold uppercase text-red-400">
                 En vivo
               </span>
@@ -80,14 +80,23 @@ export default async function ModelProfilePage({ params }: Props) {
 
       <section>
         <h2 className="mb-4 border-b border-[var(--border-subtle)] pb-2 text-base font-bold text-white">
-          Vídeos de {model.name}
+          Historias de {model.name}
         </h2>
         {videos.length === 0 ? (
-          <p className="text-sm text-[var(--text-dim)]">Sin vídeos publicados aún.</p>
+          <p className="text-sm text-[var(--text-dim)]">Sin historias publicadas aún.</p>
         ) : (
-          <div className="grid grid-cols-2 gap-x-3 gap-y-5 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5">
+          <div className="grid gap-3 sm:grid-cols-2">
             {videos.map((item) => (
-              <VideoCard key={item.slug} item={item as CatalogItem} />
+              <Link
+                key={item.slug}
+                href={`/player?node=${item.id}`}
+                className="surface-panel block p-4 transition hover:border-[var(--accent)]/40"
+              >
+                <h3 className="font-medium text-white">{item.title}</h3>
+                {item.summary && (
+                  <p className="mt-1 line-clamp-2 text-sm text-[var(--text-dim)]">{item.summary}</p>
+                )}
+              </Link>
             ))}
           </div>
         )}

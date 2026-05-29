@@ -1,20 +1,20 @@
-import Link from "next/link";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { ContentEditor } from "@/components/admin/ContentEditor";
+import { StoryBuilder } from "@/components/admin/StoryBuilder";
+import Link from "next/link";
 
 export default function AdminContentPage() {
   return (
     <section>
       <PageHeader
-        title="Gestión de contenido"
-        description="Creator shell: nodos del árbol narrativo (sin acceso para usuarios finales)."
+        title="Historias interactivas"
+        description="Sube vídeos IA y conecta decisiones con distintos finales. Sin live — solo ramas pregrabadas."
         action={
-          <Link href="/admin" className="text-sm text-zinc-400 hover:text-white">
-            ← Resumen
+          <Link href="/admin/models" className="text-sm text-zinc-400 hover:text-white">
+            Modelos IA →
           </Link>
         }
       />
-      <ContentEditor />
+      <StoryBuilder />
     </section>
   );
 }
