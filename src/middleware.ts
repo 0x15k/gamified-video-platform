@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyAccessToken } from "@/lib/auth/jwt";
+import { verifyAccessTokenEdge } from "@/lib/auth/jwt-edge";
 import { ACCESS_COOKIE } from "@/lib/auth/cookies";
 import { AGE_GATE_COOKIE } from "@/lib/auth/age-gate";
 import { getSecurityHeaders } from "@/lib/security/headers";
@@ -55,6 +55,20 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  if (pathname === "/login" || pathname === "/register") {
+    const token = request.cookies.get(ACCESS_COOKIE)?.value;
+    const payload = token ? await verifyAccessTokenEdge(token) : null;
+    if (payload?.sub && pathname === "/login") {
+      const next = request.nextUrl.searchParams.get("next");
+      const safeNext =
+        next && next.startsWith("/") && !next.startsWith("//") ? next : null;
+      const dest =
+        safeNext ?? (payload.accountType === "ADMIN" ? "/admin" : "/dashboard");
+      return withSecurityHeaders(NextResponse.redirect(new URL(dest, request.url)));
+    }
+    return withSecurityHeaders(NextResponse.next());
+  }
+
   if (PUBLIC_PAGES.has(pathname)) {
     return withSecurityHeaders(NextResponse.next());
   }
@@ -82,7 +96,7 @@ export async function middleware(request: NextRequest) {
   }
 
   const token = request.cookies.get(ACCESS_COOKIE)?.value;
-  const payload = token ? await verifyAccessToken(token) : null;
+  const payload = token ? await verifyAccessTokenEdge(token) : null;
 
   const isApi = pathname.startsWith("/api/");
   const isUserPage = USER_PAGE.test(pathname);

@@ -27,6 +27,35 @@ export async function GET(request: NextRequest, context: RouteContext) {
     "guest";
 
   let previewSec: number | null = null;
+  let locked = false;
+
+  if (node.sourceType === "EMBED") {
+    if (!node.embedUrl) {
+      return jsonError("Embed URL not configured", 503);
+    }
+
+    if (user) {
+      if (node.isPremium && !hasPremiumPlan(user.plan)) {
+        const access = await deductTokensForNode(user.id, node);
+        if (!access.ok) locked = true;
+      }
+    } else if (node.isPremium) {
+      locked = true;
+    }
+
+    return applySecurityHeaders(
+      NextResponse.json({
+        sourceType: "EMBED",
+        embedUrl: locked ? null : node.embedUrl,
+        previewSec: locked ? node.previewSec : null,
+        isPremium: node.isPremium,
+        locked,
+        requiresLogin: !user && node.isPremium,
+        plan: user?.plan ?? null,
+      }),
+    );
+  }
+
   let userId = `guest:${clientIp}`;
 
   if (user) {
@@ -53,9 +82,11 @@ export async function GET(request: NextRequest, context: RouteContext) {
 
   return applySecurityHeaders(
     NextResponse.json({
+      sourceType: "FILE",
       streamUrl,
       previewSec,
       isPremium: node.isPremium,
+      locked: false,
       requiresLogin: !user && node.isPremium,
       plan: user?.plan ?? null,
     }),

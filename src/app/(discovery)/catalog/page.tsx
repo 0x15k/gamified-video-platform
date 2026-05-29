@@ -24,7 +24,7 @@ export default async function CatalogPage() {
       <div className="mb-6">
         <h1 className="text-xl font-bold text-white sm:text-2xl">Vídeos populares</h1>
         <p className="mt-1 text-sm text-[var(--text-muted)]">
-          Trending, tags y contenido interactivo
+          Solo chicas IA y animación — vídeos embebidos de prueba (sin subida propia)
         </p>
       </div>
       <CatalogSearch tags={tags} />

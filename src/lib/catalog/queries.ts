@@ -9,6 +9,8 @@ export type CatalogListParams = {
   sort?: CatalogSort;
   page?: number;
   pageSize?: number;
+  /** Catálogo adulto: solo entradas con tags de contenido IA. */
+  aiOnly?: boolean;
 };
 
 const listSelect = {
@@ -17,6 +19,7 @@ const listSelect = {
   title: true,
   summary: true,
   tags: true,
+  sourceType: true,
   durationSec: true,
   viewCount: true,
   isPremium: true,
@@ -34,7 +37,16 @@ export async function listCatalog(params: CatalogListParams) {
     parentNodeId: null,
   };
 
-  if (params.tag) {
+  const aiTags = ["ai", "ia", "animation", "animated", "3d", "cgi", "generated"];
+
+  if (params.aiOnly && params.tag) {
+    where.AND = [
+      { tags: { hasSome: aiTags } },
+      { tags: { has: params.tag.toLowerCase() } },
+    ];
+  } else if (params.aiOnly) {
+    where.tags = { hasSome: aiTags };
+  } else if (params.tag) {
     where.tags = { has: params.tag.toLowerCase() };
   }
 
@@ -68,9 +80,14 @@ export async function listCatalog(params: CatalogListParams) {
   return { items, total, page, pageSize, totalPages: Math.ceil(total / pageSize) };
 }
 
-export async function getPopularTags(limit = 20) {
+export async function getPopularTags(limit = 20, aiOnly = false) {
+  const aiTags = ["ai", "ia", "animation", "animated", "3d", "cgi", "generated"];
   const nodes = await prisma.videoNode.findMany({
-    where: { published: true, parentNodeId: null },
+    where: {
+      published: true,
+      parentNodeId: null,
+      ...(aiOnly ? { tags: { hasSome: aiTags } } : {}),
+    },
     select: { tags: true },
     take: 500,
   });

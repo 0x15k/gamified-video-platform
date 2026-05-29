@@ -7,7 +7,9 @@ type NodeRow = {
   id: string;
   slug: string;
   title: string;
+  sourceType: "FILE" | "EMBED";
   urlHash: string;
+  embedUrl: string | null;
   summary: string | null;
   tags: string[];
   isPremium: boolean;
@@ -22,7 +24,7 @@ type NodeRow = {
 export function ContentEditor() {
   const [nodes, setNodes] = useState<NodeRow[]>([]);
   const [title, setTitle] = useState("");
-  const [urlHash, setUrlHash] = useState("");
+  const [embedInput, setEmbedInput] = useState("");
   const [summary, setSummary] = useState("");
   const [tagsInput, setTagsInput] = useState("ai, animation");
   const [isPremium, setIsPremium] = useState(false);
@@ -55,8 +57,9 @@ export function ContentEditor() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         title,
-        urlHash,
         summary,
+        sourceType: "EMBED",
+        embedUrl: embedInput,
         tags: parseTags(tagsInput),
         isPremium,
         tokenCost: isPremium ? tokenCost : 0,
@@ -65,10 +68,11 @@ export function ContentEditor() {
         durationSec: 60,
       }),
     });
-    setMessage(res.ok ? "Publicado en catálogo." : "Error al crear.");
+    const data = await res.json().catch(() => ({}));
+    setMessage(res.ok ? "Embed publicado (solo IA)." : (data.error ?? "Error al crear."));
     if (res.ok) {
       setTitle("");
-      setUrlHash("");
+      setEmbedInput("");
       setSummary("");
       void load();
     }
@@ -85,80 +89,95 @@ export function ContentEditor() {
 
   return (
     <div className="space-y-8">
-      <form onSubmit={onCreate} className="max-w-lg space-y-3 rounded-xl border border-zinc-800 p-4">
-        <h3 className="font-medium text-white">Nuevo vídeo (catálogo raíz)</h3>
+      <div className="surface-panel border-[var(--accent)]/20 p-4 text-sm text-[var(--text-muted)]">
+        <p className="font-medium text-white">Modo embed (pruebas)</p>
+        <p className="mt-2">
+          En la web de origen: abre un vídeo → <strong className="text-white">Compartir / Embed</strong>{" "}
+          → copia la URL <code className="text-[var(--accent)]">https://…/embed/…</code> y pégala abajo.
+          Solo dominios permitidos. El tag <strong className="text-white">ai</strong> es obligatorio.
+        </p>
+      </div>
+
+      <form onSubmit={onCreate} className="max-w-xl space-y-3 surface-panel p-4">
+        <h3 className="font-medium text-white">Nuevo embed IA</h3>
         <input
           placeholder="Título"
-          className="w-full rounded border border-zinc-700 bg-zinc-950 px-3 py-2 text-white"
+          className="input-field"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           required
         />
-        <input
-          placeholder="url-hash (archivo .mp4 en storage)"
-          className="w-full rounded border border-zinc-700 bg-zinc-950 px-3 py-2 text-white"
-          value={urlHash}
-          onChange={(e) => setUrlHash(e.target.value)}
+        <textarea
+          placeholder="Pega URL embed o iframe completo"
+          className="input-field min-h-[80px] font-mono text-xs"
+          value={embedInput}
+          onChange={(e) => setEmbedInput(e.target.value)}
           required
         />
         <input
-          placeholder="Tags: ai, animation, 3d"
-          className="w-full rounded border border-zinc-700 bg-zinc-950 px-3 py-2 text-white"
+          placeholder="Tags: ai, animation (obligatorio ai)"
+          className="input-field"
           value={tagsInput}
           onChange={(e) => setTagsInput(e.target.value)}
         />
         <textarea
-          placeholder="Descripción SEO"
-          className="w-full rounded border border-zinc-700 bg-zinc-950 px-3 py-2 text-white"
+          placeholder="Descripción"
+          className="input-field"
           value={summary}
           onChange={(e) => setSummary(e.target.value)}
         />
         <label className="flex items-center gap-2 text-sm text-zinc-300">
           <input type="checkbox" checked={published} onChange={(e) => setPublished(e.target.checked)} />
-          Publicado en catálogo
+          Publicado
         </label>
         <label className="flex items-center gap-2 text-sm text-zinc-300">
           <input type="checkbox" checked={isPremium} onChange={(e) => setIsPremium(e.target.checked)} />
-          Premium (preview + tokens)
+          Premium
         </label>
         {isPremium && (
           <input
             type="number"
             min={0}
-            className="w-full rounded border border-zinc-700 bg-zinc-950 px-3 py-2 text-white"
+            className="input-field"
             value={tokenCost}
             onChange={(e) => setTokenCost(Number(e.target.value))}
-            placeholder="Coste en tokens"
           />
         )}
-        <button type="submit" className="rounded-lg bg-violet-600 px-4 py-2 text-sm text-white hover:bg-violet-500">
-          Crear y publicar
+        <button type="submit" className="btn-primary">
+          Publicar embed
         </button>
         {message && <p className="text-sm text-zinc-400">{message}</p>}
       </form>
+
       <div>
-        <h3 className="mb-3 font-medium text-white">Todos los nodos ({nodes.length})</h3>
-        <ul className="divide-y divide-zinc-800 rounded-xl border border-zinc-800">
+        <h3 className="mb-3 font-medium text-white">Catálogo ({nodes.length})</h3>
+        <ul className="divide-y divide-[var(--border-subtle)] surface-panel">
           {nodes.map((n) => (
             <li key={n.id} className="flex flex-wrap items-center justify-between gap-4 px-4 py-3 text-sm">
               <div className="min-w-0">
-                <p className="font-medium text-white">{n.title}</p>
-                <p className="text-zinc-500">
+                <p className="font-medium text-white">
+                  {n.title}
+                  <span className="ml-2 text-[10px] uppercase text-[var(--accent)]">
+                    {n.sourceType}
+                  </span>
+                </p>
+                <p className="truncate text-[var(--text-dim)]">
                   /watch/{n.slug} · {n.viewCount} vistas · {n.tags.map((t) => `#${t}`).join(" ")}
                 </p>
+                {n.embedUrl && (
+                  <p className="truncate font-mono text-[10px] text-[var(--text-muted)]">{n.embedUrl}</p>
+                )}
               </div>
               <div className="flex shrink-0 items-center gap-2">
-                {n.isPremium && <span className="text-amber-400">Premium</span>}
-                {!n.published && <span className="text-zinc-500">Borrador</span>}
-                {n.parentNodeId === null && (
-                  <Link href={`/watch/${n.slug}`} className="text-indigo-400 hover:text-indigo-300">
+                {n.parentNodeId === null && n.embedUrl && (
+                  <Link href={`/watch/${n.slug}`} className="text-[var(--accent)] hover:underline">
                     Ver
                   </Link>
                 )}
                 <button
                   type="button"
                   onClick={() => void togglePublish(n)}
-                  className="rounded border border-zinc-700 px-2 py-1 text-xs text-zinc-300"
+                  className="btn-ghost py-1 text-xs"
                 >
                   {n.published ? "Ocultar" : "Publicar"}
                 </button>

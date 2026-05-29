@@ -7,6 +7,7 @@ import { Pool } from "pg";
 import { PrismaClient } from "../src/generated/prisma/client";
 import bcrypt from "bcryptjs";
 import { buildNodeSlug } from "../src/lib/catalog/slug";
+import { normalizeEmbedInput } from "../src/lib/video/embed";
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
@@ -87,37 +88,60 @@ async function main() {
     },
   });
 
-  await prisma.videoNode.create({
-    data: {
-      title: "AI Animation — Loop 01",
-      slug: slug("AI Animation Loop 01"),
-      summary: "Clip corto estilo animación IA. Demo de catálogo público.",
-      urlHash: "intro",
-      tags: ["ai", "animation", "3d"],
-      vertical: "ADULT",
-      durationSec: 30,
-      viewCount: 8420,
-      isPremium: false,
-      published: true,
-    },
-  });
+  const demoEmbeds = (process.env.DEMO_EMBED_URLS ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
 
-  await prisma.videoNode.create({
-    data: {
-      title: "AI Animation — Premium teaser",
-      slug: slug("AI Animation Premium teaser"),
-      summary: "Vista previa gratuita; contenido completo con tokens o Premium.",
-      urlHash: "premium-path",
+  const catalogSeeds = [
+    {
+      title: "AI Girl — Demo 1",
+      summary: "Embed de prueba (solo contenido IA).",
+      tags: ["ai", "animation", "3d"],
+      isPremium: false,
+      viewCount: 8420,
+    },
+    {
+      title: "AI Girl — Demo 2 (premium)",
+      summary: "Embed premium de prueba; requiere tokens o plan Premium.",
       tags: ["ai", "animation", "premium"],
-      vertical: "ADULT",
-      durationSec: 45,
-      viewCount: 12500,
       isPremium: true,
       tokenCost: 25,
       previewSec: 20,
-      published: true,
+      viewCount: 12500,
     },
-  });
+  ];
+
+  for (let i = 0; i < catalogSeeds.length; i++) {
+    const cfg = catalogSeeds[i];
+    const rawUrl = demoEmbeds[i];
+    const embedUrl = rawUrl ? normalizeEmbedInput(rawUrl) : null;
+
+    await prisma.videoNode.create({
+      data: {
+        title: cfg.title,
+        slug: slug(cfg.title),
+        summary: cfg.summary,
+        sourceType: embedUrl ? "EMBED" : "FILE",
+        urlHash: embedUrl ? "embed" : i === 0 ? "intro" : "premium-path",
+        embedUrl,
+        tags: cfg.tags,
+        vertical: "ADULT",
+        durationSec: 60,
+        viewCount: cfg.viewCount,
+        isPremium: cfg.isPremium,
+        tokenCost: "tokenCost" in cfg ? cfg.tokenCost : 0,
+        previewSec: "previewSec" in cfg ? cfg.previewSec : 30,
+        published: embedUrl ? true : true,
+      },
+    });
+  }
+
+  if (demoEmbeds.length === 0) {
+    console.log(
+      "  Tip: define DEMO_EMBED_URLS=https://www.pornhub.com/embed/…,https://… en .env y vuelve a seedear para catálogo embed.",
+    );
+  }
 
   const root = await prisma.videoNode.create({
     data: {

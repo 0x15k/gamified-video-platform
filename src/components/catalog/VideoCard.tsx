@@ -5,6 +5,7 @@ export type CatalogItem = {
   title: string;
   summary: string | null;
   tags: string[];
+  sourceType?: "FILE" | "EMBED";
   durationSec: number | null;
   viewCount: number;
   isPremium: boolean;
@@ -49,11 +50,18 @@ export function VideoCard({ item }: { item: CatalogItem }) {
               {duration}
             </span>
           )}
+        <div className="absolute left-1.5 top-1.5 flex gap-1">
+          {item.sourceType === "EMBED" && (
+            <span className="rounded bg-[var(--accent)] px-1.5 py-0.5 text-[10px] font-bold uppercase text-black">
+              Embed
+            </span>
+          )}
           {item.isPremium && (
-            <span className="absolute left-1.5 top-1.5 rounded bg-[var(--premium)] px-1.5 py-0.5 text-[10px] font-bold uppercase text-black">
+            <span className="rounded bg-[var(--premium)] px-1.5 py-0.5 text-[10px] font-bold uppercase text-black">
               HD
             </span>
           )}
+        </div>
         </div>
       </div>
       <div className="mt-2 px-0.5">

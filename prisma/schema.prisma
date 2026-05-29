@@ -42,6 +42,11 @@ enum ProgressStatus {
   COMPLETED
 }
 
+enum VideoSourceType {
+  FILE
+  EMBED
+}
+
 model User {
   id            String   @id @default(cuid())
   email         String   @unique
@@ -79,7 +84,9 @@ model VideoNode {
   title        String
   slug         String           @unique
   summary      String?
-  urlHash      String           @map("url_hash")
+  sourceType   VideoSourceType  @default(FILE) @map("source_type")
+  urlHash      String           @default("embed") @map("url_hash")
+  embedUrl     String?          @map("embed_url")
   tags         String[]         @default([])
   vertical     PlatformVertical @default(NEUTRAL)
   isPremium    Boolean          @default(false) @map("is_premium")
