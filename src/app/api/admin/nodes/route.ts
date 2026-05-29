@@ -23,6 +23,7 @@ const nodeSchema = z
     previewSec: z.number().int().min(0).max(300).optional(),
     published: z.boolean().optional(),
     vertical: z.enum(["NEUTRAL", "EDUCATION", "ADULT"]).optional(),
+    modelId: z.string().nullable().optional(),
   })
   .superRefine((data, ctx) => {
     const tags = data.tags?.map((t) => t.toLowerCase().trim()) ?? [];
@@ -53,7 +54,10 @@ export async function GET(request: NextRequest) {
 
   const nodes = await prisma.videoNode.findMany({
     orderBy: { createdAt: "asc" },
-    include: { _count: { select: { progress: true, bookmarks: true } } },
+    include: {
+      model: { select: { id: true, name: true, slug: true } },
+      _count: { select: { progress: true, bookmarks: true } },
+    },
   });
 
   return applySecurityHeaders(NextResponse.json({ nodes }));
@@ -108,6 +112,7 @@ export async function POST(request: NextRequest) {
       previewSec: parsed.data.previewSec ?? 30,
       published: parsed.data.published ?? true,
       vertical: parsed.data.vertical ?? "ADULT",
+      modelId: parsed.data.modelId ?? null,
     },
   });
 

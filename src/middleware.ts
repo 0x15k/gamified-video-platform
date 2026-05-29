@@ -31,8 +31,9 @@ const PUBLIC_PAGES = new Set([
   "/age-gate",
 ]);
 
-const DISCOVERY_PAGE = /^\/(catalog|watch|tag)(\/|$)/;
+const DISCOVERY_PAGE = /^\/(catalog|watch|tag|model|models)(\/|$)/;
 const PUBLIC_API_CATALOG = /^\/api\/catalog(\/|$)/;
+const PUBLIC_API_MODEL = /^\/api\/model\//;
 const PUBLIC_API_THUMBNAIL = /^\/api\/thumbnail\//;
 
 const USER_PAGE =
@@ -77,7 +78,7 @@ export async function middleware(request: NextRequest) {
     return withSecurityHeaders(NextResponse.next());
   }
 
-  if (PUBLIC_API.has(pathname) || PUBLIC_API_CATALOG.test(pathname) || PUBLIC_API_THUMBNAIL.test(pathname)) {
+  if (PUBLIC_API.has(pathname) || PUBLIC_API_CATALOG.test(pathname) || PUBLIC_API_MODEL.test(pathname) || PUBLIC_API_THUMBNAIL.test(pathname)) {
     return withSecurityHeaders(NextResponse.next());
   }
 

@@ -13,7 +13,7 @@ export type CatalogListParams = {
   aiOnly?: boolean;
 };
 
-const listSelect = {
+export const listSelect = {
   id: true,
   slug: true,
   title: true,
@@ -108,6 +108,9 @@ export async function getNodeBySlug(slug: string) {
   return prisma.videoNode.findFirst({
     where: { slug, published: true },
     include: {
+      model: {
+        select: { slug: true, name: true, avatarUrl: true, isLive: true },
+      },
       childNodes: {
         where: { published: true },
         select: {

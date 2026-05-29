@@ -3,6 +3,11 @@ import { PageHeader } from "@/components/layout/PageHeader";
 
 const CARDS = [
   {
+    href: "/admin/models",
+    title: "Modelos IA",
+    desc: "Personajes, live simulado y perfiles públicos.",
+  },
+  {
     href: "/admin/content",
     title: "Contenido",
     desc: "Árbol de nodos, rutas premium y metadatos.",

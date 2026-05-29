@@ -64,6 +64,16 @@ export function DiscoveryHeader({ siteName, isAdult }: Props) {
 
         <nav className="hidden shrink-0 items-center gap-1 lg:flex">
           <Link
+            href="/models"
+            className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
+              pathname.startsWith("/model")
+                ? "bg-[var(--accent-muted)] text-[var(--accent)]"
+                : "text-[var(--text-muted)] hover:text-white"
+            }`}
+          >
+            Modelos
+          </Link>
+          <Link
             href="/catalog"
             className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
               pathname.startsWith("/catalog") || pathname.startsWith("/watch")

@@ -18,11 +18,16 @@ type NodeRow = {
   published: boolean;
   viewCount: number;
   parentNodeId: string | null;
+  model?: { id: string; name: string; slug: string } | null;
   _count: { progress: number; bookmarks: number };
 };
 
+type ModelOption = { id: string; name: string; slug: string };
+
 export function ContentEditor() {
   const [nodes, setNodes] = useState<NodeRow[]>([]);
+  const [models, setModels] = useState<ModelOption[]>([]);
+  const [modelId, setModelId] = useState("");
   const [title, setTitle] = useState("");
   const [embedInput, setEmbedInput] = useState("");
   const [summary, setSummary] = useState("");
@@ -33,9 +38,14 @@ export function ContentEditor() {
   const [message, setMessage] = useState("");
 
   async function load() {
-    const res = await fetch("/api/admin/nodes");
-    const data = await res.json();
-    setNodes(data.nodes ?? []);
+    const [nodesRes, modelsRes] = await Promise.all([
+      fetch("/api/admin/nodes"),
+      fetch("/api/admin/models"),
+    ]);
+    const nodesData = await nodesRes.json();
+    const modelsData = await modelsRes.json();
+    setNodes(nodesData.nodes ?? []);
+    setModels(modelsData.models ?? []);
   }
 
   useEffect(() => {
@@ -66,6 +76,7 @@ export function ContentEditor() {
         published,
         vertical: "ADULT",
         durationSec: 60,
+        modelId: modelId || null,
       }),
     });
     const data = await res.json().catch(() => ({}));
@@ -121,6 +132,18 @@ export function ContentEditor() {
           value={tagsInput}
           onChange={(e) => setTagsInput(e.target.value)}
         />
+        <select
+          className="input-field"
+          value={modelId}
+          onChange={(e) => setModelId(e.target.value)}
+        >
+          <option value="">Sin modelo</option>
+          {models.map((m) => (
+            <option key={m.id} value={m.id}>
+              {m.name}
+            </option>
+          ))}
+        </select>
         <textarea
           placeholder="Descripción"
           className="input-field"
@@ -164,6 +187,9 @@ export function ContentEditor() {
                 </p>
                 <p className="truncate text-[var(--text-dim)]">
                   /watch/{n.slug} · {n.viewCount} vistas · {n.tags.map((t) => `#${t}`).join(" ")}
+                  {n.model && (
+                    <span className="text-[var(--accent)]"> · {n.model.name}</span>
+                  )}
                 </p>
                 {n.embedUrl && (
                   <p className="truncate font-mono text-[10px] text-[var(--text-muted)]">{n.embedUrl}</p>

@@ -48,6 +48,7 @@ async function main() {
   await prisma.userProgress.deleteMany();
   await prisma.transaction.deleteMany();
   await prisma.videoNode.deleteMany();
+  await prisma.aiModel.deleteMany();
   await prisma.user.deleteMany();
   await prisma.platformSettings.deleteMany();
 
@@ -88,6 +89,45 @@ async function main() {
     },
   });
 
+  const aiModels = await Promise.all(
+    [
+      {
+        slug: "luna-ai",
+        name: "Luna AI",
+        bio: "Animación 3D estilo webcam. Personaje 100% generado por IA.",
+        tags: ["ai", "3d", "webcam"],
+        isLive: true,
+        viewCount: 42000,
+      },
+      {
+        slug: "nova-ai",
+        name: "Nova",
+        bio: "Loops cortos y clips premium. Estética cyber-anime.",
+        tags: ["ai", "animation", "premium"],
+        isLive: false,
+        viewCount: 28500,
+      },
+      {
+        slug: "mira-ai",
+        name: "Mira",
+        bio: "Render hiperrealista. Contenido exclusivo en HD.",
+        tags: ["ai", "cgi", "hd"],
+        isLive: true,
+        viewCount: 51200,
+      },
+      {
+        slug: "zara-ai",
+        name: "Zara",
+        bio: "Personaje interactivo con historias ramificadas.",
+        tags: ["ai", "interactive", "story"],
+        isLive: false,
+        viewCount: 19300,
+      },
+    ].map((m) => prisma.aiModel.create({ data: { ...m, published: true } })),
+  );
+
+  const [luna, nova, mira] = aiModels;
+
   const demoEmbeds = (process.env.DEMO_EMBED_URLS ?? "")
     .split(",")
     .map((s) => s.trim())
@@ -100,6 +140,7 @@ async function main() {
       tags: ["ai", "animation", "3d"],
       isPremium: false,
       viewCount: 8420,
+      modelId: luna.id,
     },
     {
       title: "AI Girl — Demo 2 (premium)",
@@ -109,6 +150,25 @@ async function main() {
       tokenCost: 25,
       previewSec: 20,
       viewCount: 12500,
+      modelId: nova.id,
+    },
+    {
+      title: "Luna — sesión webcam simulada",
+      summary: "Clip estilo live cam IA.",
+      tags: ["ai", "webcam", "3d"],
+      isPremium: false,
+      viewCount: 15600,
+      modelId: luna.id,
+    },
+    {
+      title: "Mira — render HD exclusivo",
+      summary: "Vista previa gratuita; completo con Premium.",
+      tags: ["ai", "cgi", "hd"],
+      isPremium: true,
+      tokenCost: 15,
+      previewSec: 25,
+      viewCount: 22100,
+      modelId: mira.id,
     },
   ];
 
@@ -133,6 +193,7 @@ async function main() {
         tokenCost: "tokenCost" in cfg ? cfg.tokenCost : 0,
         previewSec: "previewSec" in cfg ? cfg.previewSec : 30,
         published: embedUrl ? true : true,
+        modelId: cfg.modelId,
       },
     });
   }
@@ -235,6 +296,7 @@ async function main() {
   });
 
   console.log("Seed complete (vertical: ADULT, ads + age gate on).");
+  console.log(`  Models: ${aiModels.length} IA profiles at /models`);
   console.log("  Demo:  demo@local.dev / Demo1234");
   console.log("  Admin: admin@local.dev / Admin1234");
   console.log("  Catalog: http://localhost:3000/catalog");
