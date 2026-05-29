@@ -78,6 +78,7 @@ export async function DiscoveryShell({
                 <span className="text-[var(--text-muted)]">Solo +18</span>
               </>
             )}
+            <span className="mt-3 block text-[var(--text-dim)]">Hecho por YL :)</span>
           </footer>
         </div>
       </div>

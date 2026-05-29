@@ -139,6 +139,7 @@ export default async function HomePage() {
             Privacidad
           </Link>
           {isAdult && " · Solo mayores de 18 años"}
+          <span className="mt-3 block">Hecho por YL :)</span>
         </p>
       </section>
     </div>

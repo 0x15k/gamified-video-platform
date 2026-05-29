@@ -15,6 +15,9 @@ function resolveRedirect(accountType: AccountType): string {
   const params = new URLSearchParams(window.location.search);
   const next = params.get("next");
   if (next && next.startsWith("/") && !next.startsWith("//")) {
+    if (next.startsWith("/admin") && !isAdmin(accountType)) {
+      return "/dashboard";
+    }
     return next;
   }
   return isAdmin(accountType) ? "/admin" : "/dashboard";

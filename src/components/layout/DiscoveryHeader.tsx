@@ -3,6 +3,9 @@
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import { FormEvent, useState } from "react";
+import { UserMenu } from "@/components/layout/UserMenu";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { isAdmin } from "@/lib/rbac/permissions";
 
 type Props = {
   siteName: string;
@@ -12,6 +15,7 @@ type Props = {
 export function DiscoveryHeader({ siteName, isAdult }: Props) {
   const router = useRouter();
   const pathname = usePathname();
+  const user = useAuthStore((s) => s.user);
   const [q, setQ] = useState("");
 
   function onSearch(e: FormEvent) {
@@ -37,10 +41,14 @@ export function DiscoveryHeader({ siteName, isAdult }: Props) {
               +18
             </span>
           )}
-          <div className="flex gap-2 lg:hidden">
-            <Link href="/login" className="text-sm text-[var(--text-muted)]">
-              Login
-            </Link>
+          <div className="flex items-center gap-2 lg:hidden">
+            {user ? (
+              <UserMenu />
+            ) : (
+              <Link href="/login" className="text-sm text-[var(--text-muted)]">
+                Login
+              </Link>
+            )}
           </div>
         </div>
 
@@ -99,12 +107,34 @@ export function DiscoveryHeader({ siteName, isAdult }: Props) {
           >
             Premium
           </Link>
-          <Link href="/dashboard" className="rounded-lg px-3 py-2 text-sm text-[var(--text-muted)] hover:text-white">
-            Mi cuenta
-          </Link>
-          <Link href="/login" className="btn-ghost ml-1 py-1.5">
-            Login
-          </Link>
+          {user ? (
+            <>
+              <Link
+                href="/dashboard"
+                className="rounded-lg px-3 py-2 text-sm text-[var(--text-muted)] hover:text-white"
+              >
+                Mi cuenta
+              </Link>
+              {isAdmin(user.accountType) && (
+                <Link
+                  href="/admin"
+                  className="rounded-lg px-3 py-2 text-sm font-medium text-violet-400 hover:bg-violet-500/10"
+                >
+                  Staff
+                </Link>
+              )}
+              <UserMenu />
+            </>
+          ) : (
+            <>
+              <Link href="/login" className="btn-ghost ml-1 py-1.5">
+                Login
+              </Link>
+              <Link href="/register" className="btn-primary py-1.5">
+                Registro
+              </Link>
+            </>
+          )}
         </nav>
       </div>
     </header>

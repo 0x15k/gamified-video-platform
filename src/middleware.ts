@@ -63,8 +63,12 @@ export async function middleware(request: NextRequest) {
       const next = request.nextUrl.searchParams.get("next");
       const safeNext =
         next && next.startsWith("/") && !next.startsWith("//") ? next : null;
+      const adminNext = safeNext && ADMIN_PAGE.test(safeNext);
       const dest =
-        safeNext ?? (payload.accountType === "ADMIN" ? "/admin" : "/dashboard");
+        adminNext && payload.accountType !== "ADMIN"
+          ? "/dashboard"
+          : safeNext ??
+            (payload.accountType === "ADMIN" ? "/admin" : "/dashboard");
       return withSecurityHeaders(NextResponse.redirect(new URL(dest, request.url)));
     }
     return withSecurityHeaders(NextResponse.next());
@@ -104,10 +108,15 @@ export async function middleware(request: NextRequest) {
   const isAdminPage = ADMIN_PAGE.test(pathname);
 
   if (isAdminPage) {
-    if (!payload?.sub || payload.accountType !== "ADMIN") {
+    if (!payload?.sub) {
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("next", pathname);
       return withSecurityHeaders(NextResponse.redirect(loginUrl));
+    }
+    if (payload.accountType !== "ADMIN") {
+      return withSecurityHeaders(
+        NextResponse.redirect(new URL("/dashboard?staff=forbidden", request.url)),
+      );
     }
     const requestHeaders = new Headers(request.headers);
     requestHeaders.set("x-user-id", payload.sub);

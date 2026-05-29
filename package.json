@@ -11,7 +11,8 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:seed": "prisma db seed",
-    "db:push": "prisma db push"
+    "db:push": "prisma db push",
+    "env:vercel": "bash scripts/prepare-vercel-env.sh"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
