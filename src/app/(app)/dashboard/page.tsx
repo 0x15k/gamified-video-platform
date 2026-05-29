@@ -2,27 +2,32 @@
 
 import Link from "next/link";
 import { PageHeader } from "@/components/layout/PageHeader";
+import { ContinueWatching } from "@/components/dashboard/ContinueWatching";
+import { ProgressSummary } from "@/components/dashboard/ProgressSummary";
 import { useAuthStore } from "@/stores/useAuthStore";
 
 const QUICK_LINKS = [
-  { href: "/story", title: "Mapa de historia", desc: "Explora ramas y nodos narrativos" },
-  { href: "/player", title: "Reproductor", desc: "Experiencia interactiva (en evolución)" },
-  { href: "/avatar", title: "Avatar 3D", desc: "Personaliza tu personaje" },
-  { href: "/store", title: "Tienda", desc: "Compra packs de tokens" },
-  { href: "/wallet", title: "Billetera", desc: "Saldo e historial" },
-  { href: "/upgrade", title: "Planes", desc: "Premium y Whale" },
+  { href: "/catalog", title: "Catálogo", desc: "Todos los capítulos" },
+  { href: "/story", title: "Mapa narrativo", desc: "Árbol de decisiones" },
+  { href: "/bookmarks", title: "Favoritos", desc: "Contenido guardado" },
+  { href: "/store", title: "Tienda", desc: "Packs de tokens" },
+  { href: "/avatar", title: "Avatar", desc: "Personalización 3D" },
+  { href: "/notifications", title: "Notificaciones", desc: "Avisos del sistema" },
 ];
 
 export default function DashboardPage() {
   const user = useAuthStore((s) => s.user);
+  const name = user?.displayName ?? user?.email?.split("@")[0];
 
   return (
     <section>
       <PageHeader
-        title={`Hola${user?.email ? `, ${user.email.split("@")[0]}` : ""}`}
-        description="Panel principal de la plataforma. El núcleo de video se perfeccionará en fases posteriores."
+        title={`Hola${name ? `, ${name}` : ""}`}
+        description="Módulos compartidos: progreso, favoritos, perfil y creator tools."
       />
+      <ContinueWatching />
       <div className="mb-8 grid gap-4 sm:grid-cols-3">
+        <ProgressSummary />
         <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-4">
           <p className="text-xs text-zinc-500">Tokens</p>
           <p className="text-3xl font-bold text-white">{user?.tokensBalance ?? 0}</p>
@@ -30,10 +35,6 @@ export default function DashboardPage() {
         <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-4">
           <p className="text-xs text-zinc-500">Plan</p>
           <p className="text-3xl font-bold text-white">{user?.role ?? "—"}</p>
-        </div>
-        <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-4">
-          <p className="text-xs text-zinc-500">Fase actual</p>
-          <p className="text-lg font-semibold text-indigo-300">Cascarón UI</p>
         </div>
       </div>
       <div className="grid gap-3 sm:grid-cols-2">

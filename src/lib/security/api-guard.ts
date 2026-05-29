@@ -6,7 +6,10 @@ import { checkRateLimit, type RateLimitTier } from "@/lib/security/rate-limit";
 import { applySecurityHeaders } from "@/lib/security/headers";
 import type { User, VideoNode, UserRole } from "@/generated/prisma/client";
 
-export type AuthUser = Pick<User, "id" | "email" | "role" | "tokensBalance" | "avatarData">;
+export type AuthUser = Pick<
+  User,
+  "id" | "email" | "role" | "tokensBalance" | "avatarData" | "displayName" | "bio"
+>;
 
 export function jsonError(message: string, status: number) {
   return applySecurityHeaders(
@@ -42,7 +45,15 @@ export async function getAuthUser(request: NextRequest): Promise<AuthUser | null
   if (headerUserId) {
     const user = await prisma.user.findUnique({
       where: { id: headerUserId },
-      select: { id: true, email: true, role: true, tokensBalance: true, avatarData: true },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        tokensBalance: true,
+        avatarData: true,
+        displayName: true,
+        bio: true,
+      },
     });
     return user;
   }
@@ -55,7 +66,15 @@ export async function getAuthUser(request: NextRequest): Promise<AuthUser | null
 
   const user = await prisma.user.findUnique({
     where: { id: payload.sub },
-    select: { id: true, email: true, role: true, tokensBalance: true, avatarData: true },
+    select: {
+      id: true,
+      email: true,
+      role: true,
+      tokensBalance: true,
+      avatarData: true,
+      displayName: true,
+      bio: true,
+    },
   });
   return user;
 }
@@ -90,7 +109,15 @@ export async function deductTokensForNode(
   if (!node.isPremium) {
     const user = await prisma.user.findUniqueOrThrow({
       where: { id: userId },
-      select: { id: true, email: true, role: true, tokensBalance: true, avatarData: true },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        tokensBalance: true,
+        avatarData: true,
+        displayName: true,
+        bio: true,
+      },
     });
     return { ok: true, user };
   }
@@ -110,7 +137,15 @@ export async function deductTokensForNode(
   if (alreadyUnlocked) {
     const user = await prisma.user.findUniqueOrThrow({
       where: { id: userId },
-      select: { id: true, email: true, role: true, tokensBalance: true, avatarData: true },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        tokensBalance: true,
+        avatarData: true,
+        displayName: true,
+        bio: true,
+      },
     });
     return { ok: true, user };
   }
@@ -135,7 +170,15 @@ export async function deductTokensForNode(
     const updated = await tx.user.update({
       where: { id: userId, tokensBalance: { gte: node.tokenCost } },
       data: { tokensBalance: { decrement: node.tokenCost } },
-      select: { id: true, email: true, role: true, tokensBalance: true, avatarData: true },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        tokensBalance: true,
+        avatarData: true,
+        displayName: true,
+        bio: true,
+      },
     });
 
     await tx.transaction.create({

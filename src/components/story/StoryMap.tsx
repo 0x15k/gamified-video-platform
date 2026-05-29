@@ -47,13 +47,26 @@ export function StoryMap() {
               <span className="text-xs text-amber-400">Premium · {node.tokenCost} tokens</span>
             )}
           </div>
-          <div className="mt-2 flex gap-2">
+          <div className="mt-2 flex flex-wrap gap-3">
             <Link
               href={`/player?node=${node.id}`}
               className="text-xs text-indigo-400 hover:text-indigo-300"
             >
-              Abrir en reproductor →
+              Reproducir →
             </Link>
+            <button
+              type="button"
+              className="text-xs text-zinc-400 hover:text-amber-300"
+              onClick={() =>
+                void fetch("/api/user/bookmarks", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ videoNodeId: node.id }),
+                })
+              }
+            >
+              ★ Favorito
+            </button>
           </div>
         </div>
         {children.length > 0 && (

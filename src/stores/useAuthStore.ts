@@ -9,6 +9,8 @@ export type AvatarData = {
 export type UserProfile = {
   id: string;
   email: string;
+  displayName?: string | null;
+  bio?: string | null;
   role: "FREE" | "PREMIUM" | "WHALE" | "ADMIN";
   tokensBalance: number;
   avatarData: AvatarData;

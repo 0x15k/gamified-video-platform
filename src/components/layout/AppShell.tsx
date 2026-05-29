@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuthStore } from "@/stores/useAuthStore";
@@ -13,6 +14,8 @@ const BASE_NAV = [
   { href: "/avatar", label: "Avatar" },
   { href: "/store", label: "Tienda" },
   { href: "/wallet", label: "Billetera" },
+  { href: "/bookmarks", label: "Favoritos" },
+  { href: "/notifications", label: "Notificaciones" },
   { href: "/upgrade", label: "Planes" },
   { href: "/settings", label: "Ajustes" },
 ];
@@ -22,6 +25,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
   const siteName = usePlatformBrand();
+  const [unread, setUnread] = useState(0);
+
+  useEffect(() => {
+    void fetch("/api/notifications")
+      .then((r) => r.json())
+      .then((d) => setUnread(d.unreadCount ?? 0))
+      .catch(() => setUnread(0));
+  }, [pathname]);
 
   const NAV =
     user?.role === "ADMIN"
@@ -49,6 +60,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   }`}
                 >
                   {item.label}
+                  {item.href === "/notifications" && unread > 0 && (
+                    <span className="ml-1.5 rounded-full bg-indigo-600 px-1.5 text-[10px] text-white">
+                      {unread}
+                    </span>
+                  )}
                 </Link>
               );
             })}

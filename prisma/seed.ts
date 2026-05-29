@@ -35,6 +35,10 @@ async function main() {
 
   const passwordHash = await bcrypt.hash("Demo1234", 12);
 
+  await prisma.analyticsEvent.deleteMany();
+  await prisma.notification.deleteMany();
+  await prisma.userBookmark.deleteMany();
+  await prisma.userProgress.deleteMany();
   await prisma.transaction.deleteMany();
   await prisma.videoNode.deleteMany();
   await prisma.user.deleteMany();
@@ -133,6 +137,14 @@ async function main() {
       status: "COMPLETED",
       gateway: "INTERNAL",
       metadata: { type: "welcome_bonus" },
+    },
+  });
+
+  await prisma.notification.create({
+    data: {
+      userId: user.id,
+      title: "Bienvenido",
+      body: "Explora el catálogo y el mapa narrativo. Tu progreso se guardará automáticamente.",
     },
   });
 

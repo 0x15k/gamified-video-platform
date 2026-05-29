@@ -64,6 +64,12 @@ export function InteractivePlayer({ nodeId }: Props) {
         });
       }
 
+      void fetch("/api/user/progress", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ videoNodeId: id, status: "STARTED" }),
+      });
+
       setLoading(false);
 
       const player = playerRef.current;
@@ -109,6 +115,16 @@ export function InteractivePlayer({ nodeId }: Props) {
 
   const handleSelect = async (option: ChildOption) => {
     setShowChoices(false);
+    if (currentNode) {
+      void fetch("/api/user/progress", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          videoNodeId: currentNode.id,
+          status: "COMPLETED",
+        }),
+      });
+    }
     await loadNode(option.id);
   };
 

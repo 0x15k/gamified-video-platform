@@ -9,6 +9,7 @@ const PUBLIC_API = new Set([
   "/api/auth/refresh",
   "/api/webhooks/ccbill",
   "/api/webhooks/crypto",
+  "/api/analytics/track",
 ]);
 const PUBLIC_PAGES = new Set(["/", "/login", "/register", "/legal/terms", "/legal/privacy"]);
 
@@ -44,7 +45,7 @@ export async function middleware(request: NextRequest) {
 
   const isApi = pathname.startsWith("/api/");
   const isAppPage =
-    /^\/(dashboard|story|player|avatar|wallet|store|upgrade|settings|catalog|admin)(\/|$)/.test(
+    /^\/(dashboard|story|player|avatar|wallet|store|upgrade|settings|catalog|admin|notifications|bookmarks)(\/|$)/.test(
       pathname,
     );
 

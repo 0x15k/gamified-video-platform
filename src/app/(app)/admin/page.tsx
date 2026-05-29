@@ -52,9 +52,12 @@ export default function AdminPage() {
         title="Administración"
         description="Configuración de plataforma. Vertical en NEUTRAL hasta que decidas el modelo de negocio."
       />
-      <div className="mb-4 flex gap-3">
+      <div className="mb-4 flex flex-wrap gap-4">
         <Link href="/admin/content" className="text-sm text-indigo-400 hover:text-indigo-300">
           Gestionar contenido →
+        </Link>
+        <Link href="/admin/analytics" className="text-sm text-indigo-400 hover:text-indigo-300">
+          Analytics →
         </Link>
       </div>
       {settings && (

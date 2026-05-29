@@ -1,6 +1,7 @@
 "use client";
 
 import { PageHeader } from "@/components/layout/PageHeader";
+import { ProfileForm } from "@/components/settings/ProfileForm";
 import { useAuthStore } from "@/stores/useAuthStore";
 
 export default function SettingsPage() {
@@ -8,30 +9,18 @@ export default function SettingsPage() {
 
   return (
     <section>
-      <PageHeader
-        title="Ajustes"
-        description="Perfil y preferencias de cuenta."
-      />
-      <div className="space-y-4 rounded-xl border border-zinc-800 bg-zinc-900/40 p-6">
-        <div>
-          <label className="text-xs text-zinc-500">Email</label>
-          <p className="text-white">{user?.email ?? "—"}</p>
-        </div>
-        <div>
-          <label className="text-xs text-zinc-500">Rol</label>
-          <p className="text-white">{user?.role ?? "—"}</p>
-        </div>
-        <div>
-          <label className="text-xs text-zinc-500">Contraseña</label>
-          <button
-            type="button"
-            disabled
-            className="mt-1 block text-sm text-zinc-500"
-          >
-            Cambiar contraseña — próximamente
-          </button>
-        </div>
+      <PageHeader title="Ajustes" description="Perfil público y cuenta." />
+      <div className="mb-6 space-y-2 rounded-xl border border-zinc-800 bg-zinc-900/40 p-4 text-sm">
+        <p>
+          <span className="text-zinc-500">Email: </span>
+          <span className="text-white">{user?.email}</span>
+        </p>
+        <p>
+          <span className="text-zinc-500">Rol: </span>
+          <span className="text-white">{user?.role}</span>
+        </p>
       </div>
+      <ProfileForm />
     </section>
   );
 }

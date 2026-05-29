@@ -15,10 +15,21 @@ La plataforma se construye **sin comprometer vertical** hasta tener el core al m
 
 1. ✅ Shell UI + auth + tokens + mapa narrativo
 2. ✅ Plataforma neutral (vertical NEUTRAL, admin, legal)
-3. ⏳ Core de negocio (roles, reglas premium, analytics básico)
-4. ⏳ Creator tools (subir capítulos, metadatos, precios)
+3. ✅ **Módulos compartidos** (progreso, favoritos, perfil, notificaciones, analytics, creator CRUD)
+4. ⏳ Reglas de negocio finas por vertical (certificados vs compliance adulto)
 5. 🔒 **Pasarela real** (CCBill / crypto / Stripe según vertical)
 6. 🔒 **Video engine** (assets reales, pre-buffer, IA motion al final)
+
+## Módulos compartidos (ambas verticales)
+
+| Módulo | Rutas |
+|--------|--------|
+| Progreso | `/api/user/progress`, dashboard «Continuar» |
+| Favoritos | `/bookmarks`, `/api/user/bookmarks` |
+| Perfil | `/settings`, `/api/user/profile` |
+| Notificaciones | `/notifications`, `/api/notifications` |
+| Analytics | `/api/analytics/track`, `/admin/analytics` |
+| Creator | `/admin/content`, `/api/admin/nodes` |
 
 ## Multiplataforma
 

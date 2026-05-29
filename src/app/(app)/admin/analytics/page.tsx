@@ -1,20 +1,20 @@
 import Link from "next/link";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { ContentEditor } from "@/components/admin/ContentEditor";
+import { AnalyticsOverview } from "@/components/admin/AnalyticsOverview";
 
-export default function AdminContentPage() {
+export default function AdminAnalyticsPage() {
   return (
     <section>
       <PageHeader
-        title="Gestión de contenido"
-        description="Creator shell compartido: cursos o episodios como nodos del árbol."
+        title="Analytics"
+        description="Métricas agregadas de los últimos 7 días."
         action={
           <Link href="/admin" className="text-sm text-zinc-400 hover:text-white">
             ← Admin
           </Link>
         }
       />
-      <ContentEditor />
+      <AnalyticsOverview />
     </section>
   );
 }
