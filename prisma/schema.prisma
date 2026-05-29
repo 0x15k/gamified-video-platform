@@ -1,0 +1,74 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  FREE
+  PREMIUM
+  WHALE
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum PaymentGateway {
+  CCBILL
+  CRYPTO
+  INTERNAL
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  passwordHash  String   @map("password_hash")
+  role          UserRole @default(FREE)
+  tokensBalance Int      @default(100) @map("tokens_balance")
+  avatarData    Json     @default("{}") @map("avatar_data")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  transactions Transaction[]
+
+  @@map("users")
+}
+
+model VideoNode {
+  id           String      @id @default(cuid())
+  title        String
+  urlHash      String      @map("url_hash")
+  isPremium    Boolean     @default(false) @map("is_premium")
+  tokenCost    Int         @default(0) @map("token_cost")
+  durationSec  Int?        @map("duration_sec")
+  parentNodeId String?     @map("parent_node_id")
+  parentNode   VideoNode?  @relation("VideoTree", fields: [parentNodeId], references: [id])
+  childNodes   VideoNode[] @relation("VideoTree")
+  createdAt    DateTime    @default(now()) @map("created_at")
+
+  @@index([parentNodeId])
+  @@map("video_nodes")
+}
+
+model Transaction {
+  id        String            @id @default(cuid())
+  userId    String            @map("user_id")
+  user      User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount    Decimal           @db.Decimal(18, 8)
+  currency  String            @default("USD")
+  status    TransactionStatus @default(PENDING)
+  gateway   PaymentGateway
+  metadata  Json              @default("{}")
+  createdAt DateTime          @default(now()) @map("created_at")
+  updatedAt DateTime          @updatedAt @map("updated_at")
+
+  @@index([userId, status])
+  @@map("transactions")
+}
