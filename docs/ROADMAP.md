@@ -1,0 +1,45 @@
+# Roadmap producto-agnóstico
+
+La plataforma se construye **sin comprometer vertical** hasta tener el core al máximo.
+
+## Decisión pendiente (al final del cascarón)
+
+| Opción | Modelo | Notas |
+|--------|--------|-------|
+| **A — Educación** | Cursos de pentesting / ciberseguridad | Stripe/CCBill estándar, certificados, menos fricción de pagos |
+| **B — Adulto** | Historias interactivas + IA | Age gate, compliance 2257 (si aplica), pasarelas adult-friendly, CDN restringido |
+
+**No decidir hasta:** shell completo, auth, economía, catálogo, admin, legal placeholders, PWA responsive.
+
+## Orden de implementación
+
+1. ✅ Shell UI + auth + tokens + mapa narrativo
+2. ✅ Plataforma neutral (vertical NEUTRAL, admin, legal)
+3. ✅ **Módulos compartidos** (progreso, favoritos, perfil, notificaciones, analytics, creator CRUD)
+4. ✅ **Vertical adulto + ads** (catálogo público, tags, trending, AdSlot, age gate) — ver `docs/ADULT_MONETIZATION.md`
+5. ⏳ Reglas de negocio finas (compliance legal, DMCA, 2257 si aplica)
+6. 🔒 **Pasarela real** (CCBill / crypto) — complemento a ads
+7. 🔒 **Video engine** (assets reales, thumbnails, pre-buffer)
+
+## Módulos compartidos (ambas verticales)
+
+| Módulo | Rutas |
+|--------|--------|
+| Progreso | `/api/user/progress`, dashboard «Continuar» |
+| Favoritos | `/bookmarks`, `/api/user/bookmarks` |
+| Perfil | `/settings`, `/api/user/profile` |
+| Notificaciones | `/notifications`, `/api/notifications` |
+| Analytics | `/api/analytics/track`, `/admin/analytics` |
+| Creator | `/admin/content`, `/api/admin/nodes` |
+
+## Multiplataforma
+
+- **Fase actual:** Web responsive + PWA manifest (instalable en móvil).
+- **Futuro:** Capacitor o Tauri si necesitas app store; mismo backend Next.js.
+
+## Cuentas dev
+
+| Rol | Email | Password |
+|-----|-------|----------|
+| Usuario | demo@local.dev | Demo1234 |
+| Admin | admin@local.dev | Admin1234 |

@@ -10,10 +10,31 @@ cp .env.example .env   # edit secrets in production
 npm run dev:infra      # PostgreSQL + Redis via Docker
 npx prisma migrate dev
 npm run db:seed
+chmod +x scripts/generate-placeholder-videos.sh
+./scripts/generate-placeholder-videos.sh   # requiere ffmpeg
 npm run dev
 ```
 
 Demo account: `demo@local.dev` / `Demo1234`
+
+## App shell (rutas autenticadas)
+
+| Ruta | Descripción |
+|------|-------------|
+| `/dashboard` | Panel principal |
+| `/story` | Mapa del árbol narrativo |
+| `/player` | Reproductor (refinamiento de video al final) |
+| `/avatar` | Editor 3D |
+| `/store` | Tienda de tokens (checkout mock) |
+| `/wallet` | Billetera |
+| `/upgrade` | Planes Premium/Whale (UI, pasarela pendiente) |
+| `/settings` | Ajustes de cuenta |
+
+## Post-MVP
+
+- **Premium replay:** re-watching an unlocked premium node does not charge tokens again.
+- **Session refresh:** client calls `POST /api/auth/refresh` every 13 minutes when logged in.
+- **Payment webhooks (stubs):** `POST /api/webhooks/ccbill` (`x-ccbill-signature`) and `POST /api/webhooks/crypto` (`x-crypto-signature`) — HMAC-SHA256 body verification via `WEBHOOK_*_SECRET` in `.env`.
 
 ## Stack
 

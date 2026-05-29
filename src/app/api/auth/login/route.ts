@@ -29,17 +29,28 @@ export async function POST(request: NextRequest) {
     return jsonError("Invalid credentials", 401);
   }
 
-  const session = await createSession({
-    id: user.id,
-    email: user.email,
-    role: user.role,
-  });
+  let session;
+  try {
+    session = await createSession({
+      id: user.id,
+      email: user.email,
+      accountType: user.accountType,
+      plan: user.plan,
+    });
+  } catch (err) {
+    console.error("[auth/login] session error", err);
+    return jsonError(
+      "No se pudo iniciar sesión (Redis o base de datos). Revisa que docker compose esté arriba.",
+      503,
+    );
+  }
 
   const response = NextResponse.json({
     user: {
       id: user.id,
       email: user.email,
-      role: user.role,
+      accountType: user.accountType,
+      plan: user.plan,
       tokensBalance: user.tokensBalance,
       avatarData: user.avatarData,
     },

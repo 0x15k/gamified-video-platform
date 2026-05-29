@@ -3,6 +3,7 @@ import { create } from "zustand";
 export type ChildOption = {
   id: string;
   title: string;
+  choiceLabel: string | null;
   isPremium: boolean;
   tokenCost: number;
   durationSec: number | null;
@@ -49,5 +50,8 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     set({ preloadCache: new Map() });
   },
   pushHistory: (nodeId) =>
-    set((s) => ({ history: [...s.history, nodeId] })),
+    set((s) => {
+      if (s.history[s.history.length - 1] === nodeId) return s;
+      return { history: [...s.history, nodeId] };
+    }),
 }));

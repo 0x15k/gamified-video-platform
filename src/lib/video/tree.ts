@@ -8,6 +8,7 @@ export async function getVideoNodeWithChildren(id: string) {
         select: {
           id: true,
           title: true,
+          choiceLabel: true,
           urlHash: true,
           isPremium: true,
           tokenCost: true,
@@ -20,7 +21,7 @@ export async function getVideoNodeWithChildren(id: string) {
 
 export async function getRootVideoNode() {
   return prisma.videoNode.findFirst({
-    where: { parentNodeId: null },
+    where: { parentNodeId: null, contentKind: "STORY", published: true },
     orderBy: { createdAt: "asc" },
   });
 }

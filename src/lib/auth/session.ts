@@ -8,7 +8,8 @@ const REFRESH_TTL_SEC = 7 * 24 * 60 * 60;
 export async function createSession(user: {
   id: string;
   email: string;
-  role: string;
+  accountType: string;
+  plan: string;
 }): Promise<{ accessToken: string; refreshToken: string; cookies: ReturnType<typeof buildAuthCookies> }> {
   const jti = randomUUID();
   const redis = getRedis();
@@ -17,7 +18,8 @@ export async function createSession(user: {
   const accessToken = await signAccessToken({
     userId: user.id,
     email: user.email,
-    role: user.role,
+    accountType: user.accountType,
+    plan: user.plan,
   });
   const refreshToken = await signRefreshToken(user.id, jti);
   const cookies = buildAuthCookies(accessToken, refreshToken);
@@ -36,11 +38,10 @@ export async function isSessionActive(userId: string, jti: string): Promise<bool
   return val === "1";
 }
 
-export async function rotateRefreshSession(user: {
-  id: string;
-  email: string;
-  role: string;
-}, oldJti: string): Promise<ReturnType<typeof createSession>> {
+export async function rotateRefreshSession(
+  user: { id: string; email: string; accountType: string; plan: string },
+  oldJti: string,
+): Promise<ReturnType<typeof createSession>> {
   await revokeSession(user.id, oldJti);
   return createSession(user);
 }

@@ -14,7 +14,10 @@ export async function GET(request: NextRequest) {
       user: {
         id: user.id,
         email: user.email,
-        role: user.role,
+        displayName: user.displayName,
+        bio: user.bio,
+        accountType: user.accountType,
+        plan: user.plan,
         tokensBalance: user.tokensBalance,
         avatarData: user.avatarData,
       },

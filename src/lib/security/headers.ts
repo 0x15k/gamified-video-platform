@@ -1,23 +1,11 @@
 import { env } from "@/lib/env";
+import { buildContentSecurityPolicy } from "@/lib/security/csp";
 
 export function getSecurityHeaders(): Record<string, string> {
   const isProd = env.NODE_ENV === "production";
 
-  const csp = [
-    "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-    "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob:",
-    "media-src 'self' blob:",
-    "connect-src 'self'",
-    "font-src 'self'",
-    "frame-ancestors 'none'",
-    "base-uri 'self'",
-    "form-action 'self'",
-  ].join("; ");
-
   const headers: Record<string, string> = {
-    "Content-Security-Policy": csp,
+    "Content-Security-Policy": buildContentSecurityPolicy(),
     "X-Content-Type-Options": "nosniff",
     "X-Frame-Options": "DENY",
     "Referrer-Policy": "strict-origin-when-cross-origin",

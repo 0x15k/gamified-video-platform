@@ -7,10 +7,21 @@ datasource db {
   provider = "postgresql"
 }
 
-enum UserRole {
+enum AccountType {
+  USER
+  ADMIN
+}
+
+enum SubscriptionPlan {
   FREE
   PREMIUM
   WHALE
+}
+
+enum PlatformVertical {
+  NEUTRAL
+  EDUCATION
+  ADULT
 }
 
 enum TransactionStatus {
@@ -26,35 +37,156 @@ enum PaymentGateway {
   INTERNAL
 }
 
+enum ProgressStatus {
+  STARTED
+  COMPLETED
+}
+
+enum VideoSourceType {
+  FILE
+  EMBED
+}
+
+enum ContentKind {
+  CLIP
+  STORY
+}
+
 model User {
   id            String   @id @default(cuid())
   email         String   @unique
   passwordHash  String   @map("password_hash")
-  role          UserRole @default(FREE)
-  tokensBalance Int      @default(100) @map("tokens_balance")
+  displayName   String?  @map("display_name")
+  bio           String?
+  accountType   AccountType      @default(USER) @map("account_type")
+  plan          SubscriptionPlan @default(FREE)
+  tokensBalance Int              @default(100) @map("tokens_balance")
   avatarData    Json     @default("{}") @map("avatar_data")
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
 
-  transactions Transaction[]
+  transactions  Transaction[]
+  progress      UserProgress[]
+  bookmarks     UserBookmark[]
+  notifications Notification[]
 
   @@map("users")
 }
 
+model PlatformSettings {
+  id              String           @id @default("default")
+  siteName        String           @default("Gamified Platform") @map("site_name")
+  vertical        PlatformVertical @default(NEUTRAL)
+  ageGateEnabled  Boolean          @default(false) @map("age_gate_enabled")
+  adsEnabled      Boolean          @default(false) @map("ads_enabled")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
+
+  @@map("platform_settings")
+}
+
+model AiModel {
+  id          String      @id @default(cuid())
+  slug        String      @unique
+  name        String
+  bio         String?
+  avatarUrl   String?     @map("avatar_url")
+  tags        String[]    @default([])
+  isLive      Boolean     @default(false) @map("is_live")
+  published   Boolean     @default(true)
+  viewCount   Int         @default(0) @map("view_count")
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+  videos      VideoNode[]
+
+  @@index([published, viewCount])
+  @@map("ai_models")
+}
+
 model VideoNode {
-  id           String      @id @default(cuid())
+  id           String           @id @default(cuid())
   title        String
-  urlHash      String      @map("url_hash")
-  isPremium    Boolean     @default(false) @map("is_premium")
-  tokenCost    Int         @default(0) @map("token_cost")
-  durationSec  Int?        @map("duration_sec")
-  parentNodeId String?     @map("parent_node_id")
-  parentNode   VideoNode?  @relation("VideoTree", fields: [parentNodeId], references: [id])
-  childNodes   VideoNode[] @relation("VideoTree")
-  createdAt    DateTime    @default(now()) @map("created_at")
+  slug         String           @unique
+  summary      String?
+  sourceType   VideoSourceType  @default(FILE) @map("source_type")
+  contentKind  ContentKind      @default(CLIP) @map("content_kind")
+  choiceLabel  String?          @map("choice_label")
+  urlHash      String           @default("embed") @map("url_hash")
+  embedUrl     String?          @map("embed_url")
+  tags         String[]         @default([])
+  vertical     PlatformVertical @default(NEUTRAL)
+  isPremium    Boolean          @default(false) @map("is_premium")
+  tokenCost    Int              @default(0) @map("token_cost")
+  durationSec  Int?             @map("duration_sec")
+  previewSec   Int              @default(30) @map("preview_sec")
+  viewCount    Int              @default(0) @map("view_count")
+  thumbnailUrl String?          @map("thumbnail_url")
+  published    Boolean          @default(true)
+  modelId      String?          @map("model_id")
+  model        AiModel?         @relation(fields: [modelId], references: [id], onDelete: SetNull)
+  parentNodeId String?          @map("parent_node_id")
+  parentNode   VideoNode?       @relation("VideoTree", fields: [parentNodeId], references: [id])
+  childNodes   VideoNode[]      @relation("VideoTree")
+  createdAt    DateTime         @default(now()) @map("created_at")
+  progress     UserProgress[]
+  bookmarks    UserBookmark[]
 
   @@index([parentNodeId])
+  @@index([modelId])
+  @@index([published, viewCount])
   @@map("video_nodes")
+}
+
+model UserProgress {
+  id              String         @id @default(cuid())
+  userId          String         @map("user_id")
+  user            User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  videoNodeId     String         @map("video_node_id")
+  videoNode       VideoNode      @relation(fields: [videoNodeId], references: [id], onDelete: Cascade)
+  status          ProgressStatus @default(STARTED)
+  lastPositionSec Int?           @map("last_position_sec")
+  completedAt     DateTime?      @map("completed_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+
+  @@unique([userId, videoNodeId])
+  @@index([userId, updatedAt])
+  @@map("user_progress")
+}
+
+model UserBookmark {
+  id          String    @id @default(cuid())
+  userId      String    @map("user_id")
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  videoNodeId String    @map("video_node_id")
+  videoNode   VideoNode @relation(fields: [videoNodeId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  @@unique([userId, videoNodeId])
+  @@map("user_bookmarks")
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  body      String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([userId, read, createdAt])
+  @@map("notifications")
+}
+
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  userId    String?  @map("user_id")
+  eventType String   @map("event_type")
+  metadata  Json     @default("{}")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([eventType, createdAt])
+  @@index([userId, createdAt])
+  @@map("analytics_events")
 }
 
 model Transaction {

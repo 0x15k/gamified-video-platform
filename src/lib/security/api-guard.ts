@@ -4,9 +4,31 @@ import { verifyAccessToken } from "@/lib/auth/jwt";
 import { ACCESS_COOKIE } from "@/lib/auth/cookies";
 import { checkRateLimit, type RateLimitTier } from "@/lib/security/rate-limit";
 import { applySecurityHeaders } from "@/lib/security/headers";
-import type { User, VideoNode, UserRole } from "@/generated/prisma/client";
+import { hasPremiumPlan, isAdmin } from "@/lib/rbac/permissions";
+import type { User, VideoNode } from "@/generated/prisma/client";
 
-export type AuthUser = Pick<User, "id" | "email" | "role" | "tokensBalance" | "avatarData">;
+export type AuthUser = Pick<
+  User,
+  | "id"
+  | "email"
+  | "accountType"
+  | "plan"
+  | "tokensBalance"
+  | "avatarData"
+  | "displayName"
+  | "bio"
+>;
+
+const userSelect = {
+  id: true,
+  email: true,
+  accountType: true,
+  plan: true,
+  tokensBalance: true,
+  avatarData: true,
+  displayName: true,
+  bio: true,
+} as const;
 
 export function jsonError(message: string, status: number) {
   return applySecurityHeaders(
@@ -40,11 +62,10 @@ export async function requireRateLimit(
 export async function getAuthUser(request: NextRequest): Promise<AuthUser | null> {
   const headerUserId = request.headers.get("x-user-id");
   if (headerUserId) {
-    const user = await prisma.user.findUnique({
+    return prisma.user.findUnique({
       where: { id: headerUserId },
-      select: { id: true, email: true, role: true, tokensBalance: true, avatarData: true },
+      select: userSelect,
     });
-    return user;
   }
 
   const token = request.cookies.get(ACCESS_COOKIE)?.value;
@@ -53,11 +74,10 @@ export async function getAuthUser(request: NextRequest): Promise<AuthUser | null
   const payload = await verifyAccessToken(token);
   if (!payload?.sub) return null;
 
-  const user = await prisma.user.findUnique({
+  return prisma.user.findUnique({
     where: { id: payload.sub },
-    select: { id: true, email: true, role: true, tokensBalance: true, avatarData: true },
+    select: userSelect,
   });
-  return user;
 }
 
 export async function requireAuth(request: NextRequest): Promise<AuthUser | NextResponse> {
@@ -66,8 +86,9 @@ export async function requireAuth(request: NextRequest): Promise<AuthUser | Next
   return user;
 }
 
-export function requireRole(user: AuthUser, roles: UserRole[]): NextResponse | null {
-  if (!roles.includes(user.role)) {
+/** Solo staff de plataforma (no usuarios finales). */
+export function requireAdmin(user: AuthUser): NextResponse | null {
+  if (!isAdmin(user.accountType)) {
     return jsonError("Forbidden", 403);
   }
   return null;
@@ -78,7 +99,7 @@ export async function requirePremiumAccess(
   node: Pick<VideoNode, "isPremium" | "tokenCost">,
 ): Promise<NextResponse | null> {
   if (!node.isPremium) return null;
-  if (user.role === "PREMIUM" || user.role === "WHALE") return null;
+  if (hasPremiumPlan(user.plan)) return null;
   if (user.tokensBalance >= node.tokenCost) return null;
   return jsonError("Insufficient tokens", 402);
 }
@@ -90,7 +111,24 @@ export async function deductTokensForNode(
   if (!node.isPremium) {
     const user = await prisma.user.findUniqueOrThrow({
       where: { id: userId },
-      select: { id: true, email: true, role: true, tokensBalance: true, avatarData: true },
+      select: userSelect,
+    });
+    return { ok: true, user };
+  }
+
+  const alreadyUnlocked = await prisma.transaction.findFirst({
+    where: {
+      userId,
+      status: "COMPLETED",
+      gateway: "INTERNAL",
+      metadata: { path: ["videoNodeId"], equals: node.id },
+    },
+  });
+
+  if (alreadyUnlocked) {
+    const user = await prisma.user.findUniqueOrThrow({
+      where: { id: userId },
+      select: userSelect,
     });
     return { ok: true, user };
   }
@@ -98,13 +136,24 @@ export async function deductTokensForNode(
   const result = await prisma.$transaction(async (tx) => {
     const current = await tx.user.findUnique({ where: { id: userId } });
     if (!current) return null;
-    if (current.role === "PREMIUM" || current.role === "WHALE") return current;
+    if (hasPremiumPlan(current.plan)) return current;
+
+    const prior = await tx.transaction.findFirst({
+      where: {
+        userId,
+        status: "COMPLETED",
+        gateway: "INTERNAL",
+        metadata: { path: ["videoNodeId"], equals: node.id },
+      },
+    });
+    if (prior) return current;
+
     if (current.tokensBalance < node.tokenCost) return null;
 
     const updated = await tx.user.update({
       where: { id: userId, tokensBalance: { gte: node.tokenCost } },
       data: { tokensBalance: { decrement: node.tokenCost } },
-      select: { id: true, email: true, role: true, tokensBalance: true, avatarData: true },
+      select: userSelect,
     });
 
     await tx.transaction.create({
