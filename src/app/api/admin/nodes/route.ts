@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { buildNodeSlug } from "@/lib/catalog/slug";
-import { normalizeEmbedInput, isAiTagged } from "@/lib/video/embed";
+import { canonicalizeEmbedUrl, isAiTagged } from "@/lib/video/embed";
 import { requireAuth, requireRateLimit, requireAdmin, jsonError } from "@/lib/security/api-guard";
 import { applySecurityHeaders } from "@/lib/security/headers";
 import { randomUUID } from "crypto";
@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
 
   let embedUrl: string | null = null;
   if (sourceType === "EMBED") {
-    const normalized = normalizeEmbedInput(parsed.data.embedUrl ?? "");
+    const normalized = canonicalizeEmbedUrl(parsed.data.embedUrl ?? "");
     if (!normalized) return jsonError("URL de embed no válida o dominio no permitido", 400);
     embedUrl = normalized;
   }

@@ -8,6 +8,7 @@ import {
 } from "@/lib/security/api-guard";
 import { hasPremiumPlan } from "@/lib/rbac/permissions";
 import { issueMediaToken } from "@/lib/security/media-token";
+import { canonicalizeEmbedUrl } from "@/lib/video/embed";
 import { applySecurityHeaders } from "@/lib/security/headers";
 
 type RouteContext = { params: Promise<{ slug: string }> };
@@ -34,6 +35,14 @@ export async function GET(request: NextRequest, context: RouteContext) {
       return jsonError("Embed URL not configured", 503);
     }
 
+    const embedUrl = canonicalizeEmbedUrl(node.embedUrl);
+    if (!embedUrl) {
+      return jsonError(
+        "URL de embed no válida. Usa el enlace «Embed» (ej. https://www.pornhub.com/embed/…), no la página del vídeo.",
+        503,
+      );
+    }
+
     if (user) {
       if (node.isPremium && !hasPremiumPlan(user.plan)) {
         const access = await deductTokensForNode(user.id, node);
@@ -46,7 +55,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
     return applySecurityHeaders(
       NextResponse.json({
         sourceType: "EMBED",
-        embedUrl: locked ? null : node.embedUrl,
+        embedUrl: locked ? null : embedUrl,
         previewSec: locked ? node.previewSec : null,
         isPremium: node.isPremium,
         locked,

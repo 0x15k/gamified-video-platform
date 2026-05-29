@@ -7,7 +7,7 @@ import { Pool } from "pg";
 import { PrismaClient } from "../src/generated/prisma/client";
 import bcrypt from "bcryptjs";
 import { buildNodeSlug } from "../src/lib/catalog/slug";
-import { normalizeEmbedInput } from "../src/lib/video/embed";
+import { canonicalizeEmbedUrl } from "../src/lib/video/embed";
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
@@ -115,7 +115,7 @@ async function main() {
   for (let i = 0; i < catalogSeeds.length; i++) {
     const cfg = catalogSeeds[i];
     const rawUrl = demoEmbeds[i];
-    const embedUrl = rawUrl ? normalizeEmbedInput(rawUrl) : null;
+    const embedUrl = rawUrl ? canonicalizeEmbedUrl(rawUrl) : null;
 
     await prisma.videoNode.create({
       data: {

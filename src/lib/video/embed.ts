@@ -1,14 +1,14 @@
-const DEFAULT_ALLOWED = [
+const PLATFORM_SUFFIXES = [
   "pornhub.com",
-  "www.pornhub.com",
-  "phncdn.com",
   "xvideos.com",
-  "www.xvideos.com",
-  "xvideos-cdn.com",
   "spankbang.com",
-  "www.spankbang.com",
   "eporner.com",
-  "www.eporner.com",
+];
+
+const DEFAULT_ALLOWED = [
+  ...PLATFORM_SUFFIXES,
+  "phncdn.com",
+  "xvideos-cdn.com",
 ];
 
 export function getEmbedAllowedHosts(): string[] {
@@ -19,13 +19,16 @@ export function getEmbedAllowedHosts(): string[] {
 
 function hostAllowed(hostname: string): boolean {
   const host = hostname.toLowerCase();
-  return getEmbedAllowedHosts().some(
-    (allowed) => host === allowed || host.endsWith(`.${allowed.replace(/^\*\./, "")}`),
-  );
+  const allowed = getEmbedAllowedHosts();
+
+  return allowed.some((entry) => {
+    const base = entry.replace(/^\*\./, "");
+    return host === entry || host === base || host.endsWith(`.${base}`);
+  });
 }
 
-/** Extrae URL de iframe HTML o URL directa de embed. */
-export function normalizeEmbedInput(input: string): string | null {
+/** Convierte URLs de vista / iframe a URL embed canónica (HTTPS). */
+export function canonicalizeEmbedUrl(input: string): string | null {
   const trimmed = input.trim();
   if (!trimmed) return null;
 
@@ -36,24 +39,65 @@ export function normalizeEmbedInput(input: string): string | null {
     const url = new URL(candidate);
     if (url.protocol !== "https:") return null;
     if (!hostAllowed(url.hostname)) return null;
-    if (!isLikelyEmbedPath(url)) return null;
-    return url.toString();
+
+    const canonical = providerCanonicalEmbed(url);
+    if (!canonical) return null;
+
+    const out = new URL(canonical);
+    if (!hostAllowed(out.hostname)) return null;
+    return out.toString();
   } catch {
     return null;
   }
 }
 
-function isLikelyEmbedPath(url: URL): boolean {
-  const p = url.pathname.toLowerCase();
-  return (
-    p.includes("/embed") ||
-    p.includes("/embedframe") ||
-    p.includes("/xembed") ||
-    url.hostname.includes("pornhub") ||
-    url.hostname.includes("xvideos") ||
-    url.hostname.includes("spankbang") ||
-    url.hostname.includes("eporner")
-  );
+function providerCanonicalEmbed(url: URL): string | null {
+  const host = url.hostname.toLowerCase();
+
+  if (host.includes("pornhub")) {
+    const viewkey = url.searchParams.get("viewkey");
+    if (viewkey) {
+      return `https://www.pornhub.com/embed/${viewkey}`;
+    }
+    const embedId = url.pathname.match(/\/embed\/([^/?#]+)/i)?.[1];
+    if (embedId) {
+      return `https://www.pornhub.com/embed/${embedId}`;
+    }
+    return null;
+  }
+
+  if (host.includes("xvideos")) {
+    const embedframe = url.pathname.match(/\/embedframe\/([^/?#]+)/i)?.[1];
+    if (embedframe) {
+      return `https://www.xvideos.com/embedframe/${embedframe}`;
+    }
+    const videoId = url.pathname.match(/\/video\.([^/?#]+)\/([^/?#]+)/i);
+    if (videoId) {
+      return `https://www.xvideos.com/embedframe/${videoId[2]}`;
+    }
+    return null;
+  }
+
+  if (host.includes("spankbang")) {
+    if (url.pathname.includes("/embed/")) {
+      return url.toString().replace(/^https?:\/\/[^/]+/i, "https://www.spankbang.com");
+    }
+    return null;
+  }
+
+  if (host.includes("eporner")) {
+    if (url.pathname.includes("/embed/")) {
+      return url.toString().replace(/^https?:\/\/[^/]+/i, "https://www.eporner.com");
+    }
+    return null;
+  }
+
+  return null;
+}
+
+/** @deprecated alias */
+export function normalizeEmbedInput(input: string): string | null {
+  return canonicalizeEmbedUrl(input);
 }
 
 export function isAiTagged(tags: string[]): boolean {

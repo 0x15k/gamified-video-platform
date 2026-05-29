@@ -1,6 +1,7 @@
 /** Origins allowed in <iframe src> for external embed players. */
 export const EMBED_FRAME_ORIGINS = [
   "'self'",
+  "https://*.pornhub.com",
   "https://www.pornhub.com",
   "https://pornhub.com",
   "https://www.xvideos.com",

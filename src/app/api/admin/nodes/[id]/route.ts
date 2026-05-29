@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { normalizeEmbedInput } from "@/lib/video/embed";
+import { canonicalizeEmbedUrl } from "@/lib/video/embed";
 import { requireAuth, requireRateLimit, requireAdmin, jsonError } from "@/lib/security/api-guard";
 import { applySecurityHeaders } from "@/lib/security/headers";
 
@@ -56,7 +56,7 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
     if (parsed.data.embedUrl === null) {
       data.embedUrl = null;
     } else {
-      const normalized = normalizeEmbedInput(parsed.data.embedUrl);
+      const normalized = canonicalizeEmbedUrl(parsed.data.embedUrl);
       if (!normalized) return jsonError("URL de embed no válida", 400);
       data.embedUrl = normalized;
     }

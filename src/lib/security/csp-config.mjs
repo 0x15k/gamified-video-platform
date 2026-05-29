@@ -1,6 +1,7 @@
 /** Used by next.config.ts (no TS import in config). Keep in sync with csp.ts */
 export const EMBED_FRAME_ORIGINS = [
   "'self'",
+  "https://*.pornhub.com",
   "https://www.pornhub.com",
   "https://pornhub.com",
   "https://www.xvideos.com",

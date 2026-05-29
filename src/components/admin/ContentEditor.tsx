@@ -93,7 +93,8 @@ export function ContentEditor() {
         <p className="font-medium text-white">Modo embed (pruebas)</p>
         <p className="mt-2">
           En la web de origen: abre un vídeo → <strong className="text-white">Compartir / Embed</strong>{" "}
-          → copia la URL <code className="text-[var(--accent)]">https://…/embed/…</code> y pégala abajo.
+          → copia la URL <code className="text-[var(--accent)]">https://www.pornhub.com/embed/…</code>{" "}
+          (no la página normal con <code>view_video.php</code>).
           Solo dominios permitidos. El tag <strong className="text-white">ai</strong> es obligatorio.
         </p>
       </div>
