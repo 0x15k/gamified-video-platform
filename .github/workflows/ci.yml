@@ -9,6 +9,29 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: gamified
+          POSTGRES_PASSWORD: gamified
+          POSTGRES_DB: gamified
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U gamified -d gamified"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 5
     env:
       DATABASE_URL: postgresql://gamified:gamified@localhost:5432/gamified
       REDIS_URL: redis://localhost:6379
@@ -28,6 +51,7 @@ jobs:
 
       - run: npm ci
       - run: npx prisma generate
+      - run: npx prisma migrate deploy
       - run: npm run lint
       - run: npm run build
         env:
