@@ -152,7 +152,7 @@ export function InteractivePlayer({ nodeId }: Props) {
       <div data-vjs-player>
         <video ref={videoRef} className="video-js vjs-big-play-centered w-full" />
       </div>
-      {children.length > 0 && <VideoPreloader children={children} />}
+      {children.length > 0 && <VideoPreloader options={children} />}
       {showChoices && children.length > 0 && (
         <DecisionOverlay
           options={children}

@@ -3,6 +3,7 @@ import { create } from "zustand";
 export type ChildOption = {
   id: string;
   title: string;
+  choiceLabel: string | null;
   isPremium: boolean;
   tokenCost: number;
   durationSec: number | null;

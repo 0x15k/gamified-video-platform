@@ -1,12 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { canonicalizeEmbedUrl } from "@/lib/video/embed";
 import { requireAuth, requireRateLimit, requireAdmin, jsonError } from "@/lib/security/api-guard";
 import { applySecurityHeaders } from "@/lib/security/headers";
 
 const patchSchema = z.object({
   title: z.string().min(1).max(200).optional(),
   summary: z.string().max(500).nullable().optional(),
+  sourceType: z.enum(["FILE", "EMBED"]).optional(),
+  embedUrl: z.string().max(2000).nullable().optional(),
   urlHash: z.string().min(1).max(120).optional(),
   slug: z.string().min(2).max(120).optional(),
   tags: z.array(z.string().min(1).max(40)).max(12).optional(),
@@ -18,6 +21,7 @@ const patchSchema = z.object({
   published: z.boolean().optional(),
   thumbnailUrl: z.string().url().nullable().optional(),
   vertical: z.enum(["NEUTRAL", "EDUCATION", "ADULT"]).optional(),
+  modelId: z.string().nullable().optional(),
 });
 
 type RouteContext = { params: Promise<{ id: string }> };
@@ -42,12 +46,22 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
   const parsed = patchSchema.safeParse(body);
   if (!parsed.success) return jsonError("Invalid input", 400);
 
-  const data = {
+  const data: Record<string, unknown> = {
     ...parsed.data,
     ...(parsed.data.tags
       ? { tags: parsed.data.tags.map((t) => t.toLowerCase().trim()) }
       : {}),
   };
+
+  if (parsed.data.embedUrl !== undefined) {
+    if (parsed.data.embedUrl === null) {
+      data.embedUrl = null;
+    } else {
+      const normalized = canonicalizeEmbedUrl(parsed.data.embedUrl);
+      if (!normalized) return jsonError("URL de embed no válida", 400);
+      data.embedUrl = normalized;
+    }
+  }
 
   const node = await prisma.videoNode.update({
     where: { id },

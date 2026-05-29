@@ -3,9 +3,19 @@ import { PageHeader } from "@/components/layout/PageHeader";
 
 const CARDS = [
   {
+    href: "/admin/clips",
+    title: "Clips embed",
+    desc: "Catálogo con iframes externos (ideal para Vercel).",
+  },
+  {
     href: "/admin/content",
-    title: "Contenido",
-    desc: "Árbol de nodos, rutas premium y metadatos.",
+    title: "Historias",
+    desc: "Sube vídeos IA y conecta decisiones con finales distintos.",
+  },
+  {
+    href: "/admin/models",
+    title: "Modelos IA",
+    desc: "Personajes y perfiles públicos.",
   },
   {
     href: "/admin/analytics",
@@ -26,7 +36,7 @@ export default function AdminOverviewPage() {
         title="Resumen staff"
         description="Panel separado del producto usuario. Solo cuentas ADMIN."
       />
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {CARDS.map((card) => (
           <Link
             key={card.href}

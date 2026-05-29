@@ -39,16 +39,16 @@ export default function PlayerPage() {
     <section>
       <PageHeader
         title="Reproductor interactivo"
-        description="Funcional pero en fase de refinamiento. Usa el mapa de historia para navegar el árbol."
+        description="Historias ramificadas con vídeo IA. Elige decisiones y desbloquea finales distintos."
         action={
           <Link href="/story" className="text-sm text-indigo-400 hover:text-indigo-300">
             Ver mapa →
           </Link>
         }
       />
-      <div className="mb-4 rounded-lg border border-amber-500/30 bg-amber-950/20 px-4 py-3 text-sm text-amber-200">
-        Fase actual: cascarón y lógica core. Optimización de video y pre-buffering se pulirán al
-        final del roadmap.
+      <div className="mb-4 rounded-lg border border-[var(--accent)]/30 bg-[var(--accent-muted)] px-4 py-3 text-sm text-[var(--text-muted)]">
+        Las decisiones aparecen en los últimos segundos del clip. Cada botón reproduce otro vídeo
+        pregenerado (rama distinta o final).
       </div>
       <Suspense fallback={<p className="text-zinc-400">Cargando...</p>}>
         <PlayerContent />

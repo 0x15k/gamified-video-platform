@@ -11,6 +11,7 @@ export async function GET(request: NextRequest) {
   if (user instanceof NextResponse) return user;
 
   const nodes = await prisma.videoNode.findMany({
+    where: { contentKind: "STORY" },
     orderBy: { createdAt: "asc" },
     select: {
       id: true,
@@ -19,6 +20,7 @@ export async function GET(request: NextRequest) {
       tokenCost: true,
       durationSec: true,
       parentNodeId: true,
+      choiceLabel: true,
     },
   });
 

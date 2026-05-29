@@ -80,6 +80,23 @@ export default async function WatchPage({ params }: Props) {
             <h1 className="text-lg font-bold leading-snug text-white sm:text-xl">
               {node.title}
             </h1>
+            {node.model && (
+              <Link
+                href={`/model/${node.model.slug}`}
+                className="mt-2 inline-flex items-center gap-2 text-sm text-[var(--accent)] hover:underline"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={node.model.avatarUrl ?? `/api/model/${node.model.slug}/avatar`}
+                  alt=""
+                  className="h-6 w-6 rounded-full object-cover"
+                />
+                {node.model.name}
+                {node.model.isLive && (
+                  <span className="text-[10px] font-bold uppercase text-red-400">Live</span>
+                )}
+              </Link>
+            )}
             <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-[var(--text-dim)]">
               <span>{node.viewCount.toLocaleString()} vistas</span>
               {node.durationSec && <span>{Math.floor(node.durationSec / 60)} min</span>}

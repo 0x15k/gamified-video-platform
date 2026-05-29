@@ -48,6 +48,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
       return {
         id: child.id,
         title: child.title,
+        choiceLabel: child.choiceLabel,
         isPremium: child.isPremium,
         tokenCost: child.tokenCost,
         durationSec: child.durationSec,

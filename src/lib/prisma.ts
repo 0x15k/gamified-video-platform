@@ -18,14 +18,34 @@ function createPrismaClient() {
   return { prisma: new PrismaClient({ adapter }), pool };
 }
 
-const { prisma, pool } =
-  globalForPrisma.prisma && globalForPrisma.pool
-    ? { prisma: globalForPrisma.prisma, pool: globalForPrisma.pool }
-    : createPrismaClient();
+/** After schema changes, dev HMR can keep an old PrismaClient without new delegates. */
+function clientHasCurrentSchema(client: PrismaClient): boolean {
+  return "aiModel" in client;
+}
 
-export { prisma };
+function getPrismaClient(): PrismaClient {
+  if (globalForPrisma.prisma && clientHasCurrentSchema(globalForPrisma.prisma)) {
+    return globalForPrisma.prisma;
+  }
 
-if (process.env.NODE_ENV !== "production") {
+  const { prisma, pool } = createPrismaClient();
   globalForPrisma.prisma = prisma;
   globalForPrisma.pool = pool;
+  return prisma;
+}
+
+/** Lazy proxy so hot reload picks up regenerated Prisma delegates. */
+export const prisma: PrismaClient = new Proxy({} as PrismaClient, {
+  get(_target, prop) {
+    const client = getPrismaClient();
+    const value = client[prop as keyof PrismaClient];
+    if (typeof value === "function") {
+      return (value as (...args: unknown[]) => unknown).bind(client);
+    }
+    return value;
+  },
+});
+
+if (process.env.NODE_ENV !== "production") {
+  globalForPrisma.prisma = getPrismaClient();
 }

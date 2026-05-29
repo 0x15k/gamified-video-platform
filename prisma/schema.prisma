@@ -42,6 +42,16 @@ enum ProgressStatus {
   COMPLETED
 }
 
+enum VideoSourceType {
+  FILE
+  EMBED
+}
+
+enum ContentKind {
+  CLIP
+  STORY
+}
+
 model User {
   id            String   @id @default(cuid())
   email         String   @unique
@@ -74,12 +84,34 @@ model PlatformSettings {
   @@map("platform_settings")
 }
 
+model AiModel {
+  id          String      @id @default(cuid())
+  slug        String      @unique
+  name        String
+  bio         String?
+  avatarUrl   String?     @map("avatar_url")
+  tags        String[]    @default([])
+  isLive      Boolean     @default(false) @map("is_live")
+  published   Boolean     @default(true)
+  viewCount   Int         @default(0) @map("view_count")
+  createdAt   DateTime    @default(now()) @map("created_at")
+  updatedAt   DateTime    @updatedAt @map("updated_at")
+  videos      VideoNode[]
+
+  @@index([published, viewCount])
+  @@map("ai_models")
+}
+
 model VideoNode {
   id           String           @id @default(cuid())
   title        String
   slug         String           @unique
   summary      String?
-  urlHash      String           @map("url_hash")
+  sourceType   VideoSourceType  @default(FILE) @map("source_type")
+  contentKind  ContentKind      @default(CLIP) @map("content_kind")
+  choiceLabel  String?          @map("choice_label")
+  urlHash      String           @default("embed") @map("url_hash")
+  embedUrl     String?          @map("embed_url")
   tags         String[]         @default([])
   vertical     PlatformVertical @default(NEUTRAL)
   isPremium    Boolean          @default(false) @map("is_premium")
@@ -89,6 +121,8 @@ model VideoNode {
   viewCount    Int              @default(0) @map("view_count")
   thumbnailUrl String?          @map("thumbnail_url")
   published    Boolean          @default(true)
+  modelId      String?          @map("model_id")
+  model        AiModel?         @relation(fields: [modelId], references: [id], onDelete: SetNull)
   parentNodeId String?          @map("parent_node_id")
   parentNode   VideoNode?       @relation("VideoTree", fields: [parentNodeId], references: [id])
   childNodes   VideoNode[]      @relation("VideoTree")
@@ -97,6 +131,7 @@ model VideoNode {
   bookmarks    UserBookmark[]
 
   @@index([parentNodeId])
+  @@index([modelId])
   @@index([published, viewCount])
   @@map("video_nodes")
 }

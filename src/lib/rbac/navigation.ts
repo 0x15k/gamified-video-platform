@@ -40,7 +40,9 @@ export const ADMIN_NAV: NavSection[] = [
     title: "Plataforma",
     items: [
       { href: "/admin", label: "Resumen" },
-      { href: "/admin/content", label: "Contenido" },
+      { href: "/admin/content", label: "Historias" },
+      { href: "/admin/clips", label: "Clips embed" },
+      { href: "/admin/models", label: "Modelos IA" },
       { href: "/admin/analytics", label: "Analytics" },
       { href: "/admin/settings", label: "Configuración" },
     ],
