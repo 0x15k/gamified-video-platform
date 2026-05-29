@@ -51,7 +51,8 @@ export async function POST(request: NextRequest) {
       select: {
         id: true,
         email: true,
-        role: true,
+        accountType: true,
+        plan: true,
         tokensBalance: true,
         avatarData: true,
       },

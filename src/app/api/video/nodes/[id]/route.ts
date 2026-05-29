@@ -69,7 +69,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
       children,
       user: {
         tokensBalance: activeUser.tokensBalance,
-        role: activeUser.role,
+        plan: activeUser.plan,
       },
     }),
   );

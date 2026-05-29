@@ -60,7 +60,7 @@ export function InteractivePlayer({ nodeId }: Props) {
         setUser({
           ...currentUser,
           tokensBalance: data.user.tokensBalance,
-          role: data.user.role,
+          plan: data.user.plan,
         });
       }
 
@@ -157,7 +157,7 @@ export function InteractivePlayer({ nodeId }: Props) {
         <DecisionOverlay
           options={children}
           tokensBalance={user?.tokensBalance ?? 0}
-          userRole={user?.role ?? "FREE"}
+          userPlan={user?.plan ?? "FREE"}
           onSelect={handleSelect}
         />
       )}

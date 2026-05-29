@@ -7,10 +7,10 @@ export default function AdminContentPage() {
     <section>
       <PageHeader
         title="Gestión de contenido"
-        description="Creator shell compartido: cursos o episodios como nodos del árbol."
+        description="Creator shell: nodos del árbol narrativo (sin acceso para usuarios finales)."
         action={
           <Link href="/admin" className="text-sm text-zinc-400 hover:text-white">
-            ← Admin
+            ← Resumen
           </Link>
         }
       />

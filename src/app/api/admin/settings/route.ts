@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { requireAuth, requireRateLimit, requireRole, jsonError } from "@/lib/security/api-guard";
+import { requireAuth, requireRateLimit, requireAdmin, jsonError } from "@/lib/security/api-guard";
 import { applySecurityHeaders } from "@/lib/security/headers";
 
 const patchSchema = z.object({
@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
 
   const user = await requireAuth(request);
   if (user instanceof NextResponse) return user;
-  const denied = requireRole(user, ["ADMIN"]);
+  const denied = requireAdmin(user);
   if (denied) return denied;
 
   const settings = await prisma.platformSettings.findUnique({ where: { id: "default" } });
@@ -29,7 +29,7 @@ export async function PATCH(request: NextRequest) {
 
   const user = await requireAuth(request);
   if (user instanceof NextResponse) return user;
-  const denied = requireRole(user, ["ADMIN"]);
+  const denied = requireAdmin(user);
   if (denied) return denied;
 
   let body: unknown;

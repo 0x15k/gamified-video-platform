@@ -21,7 +21,7 @@ export async function POST(request: NextRequest) {
 
   const user = await prisma.user.findUnique({
     where: { id: payload.sub },
-    select: { id: true, email: true, role: true },
+    select: { id: true, email: true, accountType: true, plan: true },
   });
   if (!user) return jsonError("Unauthorized", 401);
 

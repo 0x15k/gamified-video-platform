@@ -1,8 +1,10 @@
 "use client";
 
 import { PageHeader } from "@/components/layout/PageHeader";
+import { PlanBadge } from "@/components/layout/PlanBadge";
 import { ProfileForm } from "@/components/settings/ProfileForm";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { isAdmin } from "@/lib/rbac/permissions";
 
 export default function SettingsPage() {
   const user = useAuthStore((s) => s.user);
@@ -15,10 +17,13 @@ export default function SettingsPage() {
           <span className="text-zinc-500">Email: </span>
           <span className="text-white">{user?.email}</span>
         </p>
-        <p>
-          <span className="text-zinc-500">Rol: </span>
-          <span className="text-white">{user?.role}</span>
+        <p className="flex items-center gap-2">
+          <span className="text-zinc-500">Suscripción:</span>
+          {user?.plan ? <PlanBadge plan={user.plan} /> : "—"}
         </p>
+        {user && isAdmin(user.accountType) && (
+          <p className="text-xs text-violet-400">Cuenta staff — el panel de plataforma está en /admin</p>
+        )}
       </div>
       <ProfileForm />
     </section>

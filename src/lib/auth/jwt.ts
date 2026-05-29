@@ -7,7 +7,8 @@ const REFRESH_TTL = "7d";
 export type AccessTokenPayload = JWTPayload & {
   sub: string;
   email: string;
-  role: string;
+  accountType: string;
+  plan: string;
   type: "access";
 };
 
@@ -28,11 +29,13 @@ function refreshSecret() {
 export async function signAccessToken(payload: {
   userId: string;
   email: string;
-  role: string;
+  accountType: string;
+  plan: string;
 }): Promise<string> {
   return new SignJWT({
     email: payload.email,
-    role: payload.role,
+    accountType: payload.accountType,
+    plan: payload.plan,
     type: "access",
   })
     .setProtectedHeader({ alg: "HS256" })

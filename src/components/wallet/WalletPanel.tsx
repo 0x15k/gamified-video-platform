@@ -31,7 +31,7 @@ export function WalletPanel() {
         <p className="text-sm text-indigo-200">Saldo de tokens</p>
         <p className="mt-1 text-4xl font-bold text-white">{user.tokensBalance}</p>
         <p className="mt-2 text-sm text-zinc-400">
-          Plan: <span className="font-medium text-white">{user.role}</span>
+          Plan: <span className="font-medium text-white">{user.plan}</span>
         </p>
       </div>
 

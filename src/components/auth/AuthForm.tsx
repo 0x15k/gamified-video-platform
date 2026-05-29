@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { isAdmin } from "@/lib/rbac/permissions";
 
 type Mode = "login" | "register";
 
@@ -48,7 +49,14 @@ export function AuthForm({ mode }: Props) {
       },
     });
     const params = new URLSearchParams(window.location.search);
-    router.push(params.get("next") || "/dashboard");
+    const next = params.get("next");
+    if (next) {
+      router.push(next);
+    } else if (isAdmin(data.user.accountType)) {
+      router.push("/admin");
+    } else {
+      router.push("/dashboard");
+    }
   }
 
   return (

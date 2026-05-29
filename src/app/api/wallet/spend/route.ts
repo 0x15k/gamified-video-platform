@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
       user: {
         id: result.user.id,
         tokensBalance: result.user.tokensBalance,
-        role: result.user.role,
+        plan: result.user.plan,
       },
     }),
   );

@@ -33,7 +33,8 @@ export async function POST(request: NextRequest) {
     data: {
       email: parsed.data.email.toLowerCase(),
       passwordHash,
-      role: "FREE",
+      accountType: "USER",
+      plan: "FREE",
       tokensBalance: 100,
     },
   });
@@ -41,14 +42,16 @@ export async function POST(request: NextRequest) {
   const session = await createSession({
     id: user.id,
     email: user.email,
-    role: user.role,
+    accountType: user.accountType,
+    plan: user.plan,
   });
 
   const response = NextResponse.json({
     user: {
       id: user.id,
       email: user.email,
-      role: user.role,
+      accountType: user.accountType,
+      plan: user.plan,
       tokensBalance: user.tokensBalance,
       avatarData: user.avatarData,
     },

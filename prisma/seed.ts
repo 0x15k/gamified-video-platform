@@ -58,7 +58,8 @@ async function main() {
     data: {
       email: "admin@local.dev",
       passwordHash: adminHash,
-      role: "ADMIN",
+      accountType: "ADMIN",
+      plan: "FREE",
       tokensBalance: 9999,
       avatarData: {},
     },
@@ -68,7 +69,8 @@ async function main() {
     data: {
       email: "demo@local.dev",
       passwordHash,
-      role: "FREE",
+      accountType: "USER",
+      plan: "FREE",
       tokensBalance: 100,
       avatarData: {
         hairColor: "#4a3728",

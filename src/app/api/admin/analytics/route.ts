@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAuth, requireRateLimit, requireRole } from "@/lib/security/api-guard";
+import { requireAuth, requireRateLimit, requireAdmin } from "@/lib/security/api-guard";
 import { applySecurityHeaders } from "@/lib/security/headers";
 
 export async function GET(request: NextRequest) {
@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
 
   const user = await requireAuth(request);
   if (user instanceof NextResponse) return user;
-  const denied = requireRole(user, ["ADMIN"]);
+  const denied = requireAdmin(user);
   if (denied) return denied;
 
   const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);

@@ -35,14 +35,14 @@ export const TOKEN_PACKS: TokenPack[] = [
 export const SUBSCRIPTION_PLANS = [
   {
     id: "premium",
-    role: "PREMIUM" as const,
+    plan: "PREMIUM" as const,
     name: "Premium",
     priceLabel: "$14.99/mes",
     perks: ["Sin costo por nodo premium", "Avatar completo", "Soporte prioritario"],
   },
   {
     id: "whale",
-    role: "WHALE" as const,
+    plan: "WHALE" as const,
     name: "Whale",
     priceLabel: "$49.99/mes",
     perks: ["Todo Premium", "Badge exclusivo", "Early access a capítulos"],

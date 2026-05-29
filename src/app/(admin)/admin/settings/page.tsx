@@ -2,9 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { PageHeader } from "@/components/layout/PageHeader";
-import { useAuthStore } from "@/stores/useAuthStore";
 import { VERTICAL_LABELS, type PlatformVerticalKey } from "@/lib/platform/labels";
 
 type Settings = {
@@ -13,24 +11,15 @@ type Settings = {
   ageGateEnabled: boolean;
 };
 
-export default function AdminPage() {
-  const user = useAuthStore((s) => s.user);
-  const router = useRouter();
+export default function AdminSettingsPage() {
   const [settings, setSettings] = useState<Settings | null>(null);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    if (user && user.role !== "ADMIN") {
-      router.replace("/dashboard");
-    }
-  }, [user, router]);
-
-  useEffect(() => {
-    if (user?.role !== "ADMIN") return;
     void fetch("/api/admin/settings")
       .then((r) => r.json())
       .then((d) => setSettings(d.settings));
-  }, [user]);
+  }, []);
 
   async function save() {
     if (!settings) return;
@@ -42,24 +31,17 @@ export default function AdminPage() {
     setMessage(res.ok ? "Guardado." : "Error al guardar.");
   }
 
-  if (user?.role !== "ADMIN") {
-    return <p className="text-zinc-400">Acceso restringido.</p>;
-  }
-
   return (
     <section>
       <PageHeader
-        title="Administración"
-        description="Configuración de plataforma. Vertical en NEUTRAL hasta que decidas el modelo de negocio."
+        title="Configuración de plataforma"
+        description="Vertical en NEUTRAL hasta que elijas pentesting o contenido adulto."
+        action={
+          <Link href="/admin" className="text-sm text-zinc-400 hover:text-white">
+            ← Resumen
+          </Link>
+        }
       />
-      <div className="mb-4 flex flex-wrap gap-4">
-        <Link href="/admin/content" className="text-sm text-indigo-400 hover:text-indigo-300">
-          Gestionar contenido →
-        </Link>
-        <Link href="/admin/analytics" className="text-sm text-indigo-400 hover:text-indigo-300">
-          Analytics →
-        </Link>
-      </div>
       {settings && (
         <div className="max-w-lg space-y-4 rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
           <label className="block text-sm">
@@ -71,7 +53,7 @@ export default function AdminPage() {
             />
           </label>
           <label className="block text-sm">
-            <span className="text-zinc-400">Vertical (previsualización)</span>
+            <span className="text-zinc-400">Vertical</span>
             <select
               className="mt-1 w-full rounded-lg border border-zinc-700 bg-zinc-950 px-3 py-2 text-white"
               value={settings.vertical}
@@ -97,14 +79,14 @@ export default function AdminPage() {
                 setSettings({ ...settings, ageGateEnabled: e.target.checked })
               }
             />
-            Age gate (+18) activo solo si vertical = ADULT
+            Age gate (+18) cuando vertical = ADULT
           </label>
           <button
             type="button"
             onClick={() => void save()}
-            className="rounded-lg bg-indigo-600 px-4 py-2 text-sm text-white hover:bg-indigo-500"
+            className="rounded-lg bg-violet-600 px-4 py-2 text-sm text-white hover:bg-violet-500"
           >
-            Guardar configuración
+            Guardar
           </button>
           {message && <p className="text-sm text-emerald-400">{message}</p>}
         </div>

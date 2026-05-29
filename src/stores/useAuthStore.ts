@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import type { AccountType, SubscriptionPlan } from "@/lib/rbac/types";
 
 export type AvatarData = {
   hairColor: string;
@@ -11,7 +12,8 @@ export type UserProfile = {
   email: string;
   displayName?: string | null;
   bio?: string | null;
-  role: "FREE" | "PREMIUM" | "WHALE" | "ADMIN";
+  accountType: AccountType;
+  plan: SubscriptionPlan;
   tokensBalance: number;
   avatarData: AvatarData;
 };

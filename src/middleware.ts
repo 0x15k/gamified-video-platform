@@ -10,8 +10,14 @@ const PUBLIC_API = new Set([
   "/api/webhooks/ccbill",
   "/api/webhooks/crypto",
   "/api/analytics/track",
+  "/api/platform/settings",
 ]);
 const PUBLIC_PAGES = new Set(["/", "/login", "/register", "/legal/terms", "/legal/privacy"]);
+
+const USER_PAGE =
+  /^\/(dashboard|story|player|avatar|wallet|store|upgrade|settings|catalog|notifications|bookmarks)(\/|$)/;
+
+const ADMIN_PAGE = /^\/admin(\/|$)/;
 
 function withSecurityHeaders(response: NextResponse) {
   const headers = getSecurityHeaders();
@@ -44,23 +50,54 @@ export async function middleware(request: NextRequest) {
   const payload = token ? await verifyAccessToken(token) : null;
 
   const isApi = pathname.startsWith("/api/");
-  const isAppPage =
-    /^\/(dashboard|story|player|avatar|wallet|store|upgrade|settings|catalog|admin|notifications|bookmarks)(\/|$)/.test(
-      pathname,
-    );
+  const isUserPage = USER_PAGE.test(pathname);
+  const isAdminPage = ADMIN_PAGE.test(pathname);
 
-  if ((isApi && !PUBLIC_API.has(pathname)) || isAppPage) {
-    if (!payload?.sub) {
-      if (isApi) {
-        return withSecurityHeaders(
-          NextResponse.json({ error: "Unauthorized" }, { status: 401 }),
-        );
-      }
+  if (isAdminPage) {
+    if (!payload?.sub || payload.accountType !== "ADMIN") {
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("next", pathname);
       return withSecurityHeaders(NextResponse.redirect(loginUrl));
     }
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set("x-user-id", payload.sub);
+    return withSecurityHeaders(
+      NextResponse.next({ request: { headers: requestHeaders } }),
+    );
+  }
 
+  if (isApi && pathname.startsWith("/api/admin")) {
+    if (!payload?.sub || payload.accountType !== "ADMIN") {
+      return withSecurityHeaders(
+        NextResponse.json({ error: "Forbidden" }, { status: 403 }),
+      );
+    }
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set("x-user-id", payload.sub);
+    return withSecurityHeaders(
+      NextResponse.next({ request: { headers: requestHeaders } }),
+    );
+  }
+
+  if (isApi && !PUBLIC_API.has(pathname)) {
+    if (!payload?.sub) {
+      return withSecurityHeaders(
+        NextResponse.json({ error: "Unauthorized" }, { status: 401 }),
+      );
+    }
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set("x-user-id", payload.sub);
+    return withSecurityHeaders(
+      NextResponse.next({ request: { headers: requestHeaders } }),
+    );
+  }
+
+  if (isUserPage) {
+    if (!payload?.sub) {
+      const loginUrl = new URL("/login", request.url);
+      loginUrl.searchParams.set("next", pathname);
+      return withSecurityHeaders(NextResponse.redirect(loginUrl));
+    }
     const requestHeaders = new Headers(request.headers);
     requestHeaders.set("x-user-id", payload.sub);
     return withSecurityHeaders(

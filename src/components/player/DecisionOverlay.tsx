@@ -5,28 +5,28 @@ import type { ChildOption } from "@/stores/usePlayerStore";
 type Props = {
   options: ChildOption[];
   tokensBalance: number;
-  userRole: "FREE" | "PREMIUM" | "WHALE" | "ADMIN";
+  userPlan: "FREE" | "PREMIUM" | "WHALE";
   onSelect: (option: ChildOption) => void;
 };
 
 function canAccessPremium(
   opt: ChildOption,
   tokensBalance: number,
-  userRole: Props["userRole"],
+  userPlan: Props["userPlan"],
 ) {
   if (!opt.isPremium) return true;
-  if (userRole === "PREMIUM" || userRole === "WHALE" || userRole === "ADMIN") return true;
+  if (userPlan === "PREMIUM" || userPlan === "WHALE") return true;
   return tokensBalance >= opt.tokenCost;
 }
 
-export function DecisionOverlay({ options, tokensBalance, userRole, onSelect }: Props) {
+export function DecisionOverlay({ options, tokensBalance, userPlan, onSelect }: Props) {
   return (
     <div className="absolute inset-0 z-20 flex items-end justify-center bg-black/50 p-6">
       <div className="flex w-full max-w-2xl flex-col gap-3">
         <p className="text-center text-sm font-medium text-white">¿Qué camino eliges?</p>
         <div className="grid gap-2 sm:grid-cols-2">
           {options.map((opt) => {
-            const locked = !canAccessPremium(opt, tokensBalance, userRole);
+            const locked = !canAccessPremium(opt, tokensBalance, userPlan);
             return (
               <button
                 key={opt.id}

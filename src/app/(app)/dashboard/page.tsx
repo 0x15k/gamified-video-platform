@@ -23,7 +23,7 @@ export default function DashboardPage() {
     <section>
       <PageHeader
         title={`Hola${name ? `, ${name}` : ""}`}
-        description="Módulos compartidos: progreso, favoritos, perfil y creator tools."
+        description="Tu hub: progreso, catálogo, avatar y economía de tokens."
       />
       <ContinueWatching />
       <div className="mb-8 grid gap-4 sm:grid-cols-3">
@@ -34,7 +34,7 @@ export default function DashboardPage() {
         </div>
         <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-4">
           <p className="text-xs text-zinc-500">Plan</p>
-          <p className="text-3xl font-bold text-white">{user?.role ?? "—"}</p>
+          <p className="text-3xl font-bold text-white">{user?.plan ?? "—"}</p>
         </div>
       </div>
       <div className="grid gap-3 sm:grid-cols-2">

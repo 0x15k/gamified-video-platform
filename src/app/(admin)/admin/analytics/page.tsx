@@ -10,7 +10,7 @@ export default function AdminAnalyticsPage() {
         description="Métricas agregadas de los últimos 7 días."
         action={
           <Link href="/admin" className="text-sm text-zinc-400 hover:text-white">
-            ← Admin
+            ← Resumen
           </Link>
         }
       />
