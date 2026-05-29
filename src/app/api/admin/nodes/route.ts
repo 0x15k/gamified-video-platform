@@ -96,13 +96,14 @@ export async function POST(request: NextRequest) {
     embedUrl = normalized;
   }
 
-  const node = await prisma.videoNode.create({
-    data: {
-      title: parsed.data.title,
-      summary: parsed.data.summary,
-      slug,
-      tags,
-      sourceType,
+  const node =     await prisma.videoNode.create({
+      data: {
+        title: parsed.data.title,
+        summary: parsed.data.summary,
+        slug,
+        tags,
+        contentKind: "CLIP",
+        sourceType,
       urlHash: parsed.data.urlHash ?? (sourceType === "EMBED" ? "embed" : "intro"),
       embedUrl,
       parentNodeId: parsed.data.parentNodeId ?? null,

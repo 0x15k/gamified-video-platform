@@ -3,6 +3,11 @@ import { PageHeader } from "@/components/layout/PageHeader";
 
 const CARDS = [
   {
+    href: "/admin/clips",
+    title: "Clips embed",
+    desc: "Catálogo con iframes externos (ideal para Vercel).",
+  },
+  {
     href: "/admin/content",
     title: "Historias",
     desc: "Sube vídeos IA y conecta decisiones con finales distintos.",

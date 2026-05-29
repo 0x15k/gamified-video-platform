@@ -108,7 +108,7 @@ export function AuthForm({ mode }: Props) {
       <button type="submit" disabled={loading} className="btn-primary w-full py-2.5 disabled:opacity-50">
         {loading ? "..." : mode === "login" ? "Entrar" : "Registrarse"}
       </button>
-      {mode === "login" && (
+      {mode === "login" && process.env.NODE_ENV !== "production" && (
         <p className="text-center text-xs text-[var(--text-muted)]">
           Admin local: <span className="text-zinc-300">admin@local.dev</span> / Admin1234
         </p>

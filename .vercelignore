@@ -1,0 +1,36 @@
+# Documentation & internal notes (not needed at runtime)
+docs/
+*.md
+AGENTS.md
+CLAUDE.md
+README.md
+
+# Dev scripts & local infrastructure
+scripts/
+docker-compose.yml
+.github/
+
+# Seed script (demo passwords — run locally against Neon, never bundle)
+prisma/seed.ts
+
+# Local media uploads (serverless has no persistent disk)
+storage/
+
+# Secrets & local env (configure in Vercel dashboard)
+.env
+.env.*
+!.env.example
+
+# IDE / editor
+.cursor/
+.vscode/
+
+# Tests & coverage
+coverage/
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+
+# Git (redundant but explicit)
+.git/

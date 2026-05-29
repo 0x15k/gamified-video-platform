@@ -101,12 +101,13 @@ export function ContentEditor() {
   return (
     <div className="space-y-8">
       <div className="surface-panel border-[var(--accent)]/20 p-4 text-sm text-[var(--text-muted)]">
-        <p className="font-medium text-white">Modo embed (pruebas)</p>
+        <p className="font-medium text-white">Clips embed (producción / pruebas)</p>
         <p className="mt-2">
-          En la web de origen: abre un vídeo → <strong className="text-white">Compartir / Embed</strong>{" "}
-          → copia la URL <code className="text-[var(--accent)]">https://www.pornhub.com/embed/…</code>{" "}
-          (no la página normal con <code>view_video.php</code>).
-          Solo dominios permitidos. El tag <strong className="text-white">ai</strong> es obligatorio.
+          Para Vercel u hosting sin disco: usa{" "}
+          <Link href="/admin/clips" className="text-[var(--accent)] hover:underline">
+            Admin → Clips embed
+          </Link>
+          . Historias con MP4 requieren storage (R2) o servidor con disco.
         </p>
       </div>
 

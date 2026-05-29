@@ -30,13 +30,20 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files (never commit secrets)
 .env*
 !.env.example
+!.env.production.example
 
 # local video storage
+/storage/*
+!/storage/.gitkeep
+!/storage/videos/
 /storage/videos/*
 !/storage/videos/.gitkeep
+
+# IDE / agent tooling
+.cursor/
 
 # vercel
 .vercel
