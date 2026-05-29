@@ -1,7 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAccessToken } from "@/lib/auth/jwt";
 import { ACCESS_COOKIE } from "@/lib/auth/cookies";
+import { AGE_GATE_COOKIE } from "@/lib/auth/age-gate";
 import { getSecurityHeaders } from "@/lib/security/headers";
+
+/** Edge-safe flags (sync with DB via admin or .env). */
+function platformFlags() {
+  return {
+    vertical: process.env.PLATFORM_VERTICAL ?? "NEUTRAL",
+    ageGateEnabled: process.env.PLATFORM_AGE_GATE === "true",
+  };
+}
 
 const PUBLIC_API = new Set([
   "/api/auth/login",
@@ -11,11 +20,22 @@ const PUBLIC_API = new Set([
   "/api/webhooks/crypto",
   "/api/analytics/track",
   "/api/platform/settings",
+  "/api/platform/age-verify",
 ]);
-const PUBLIC_PAGES = new Set(["/", "/login", "/register", "/legal/terms", "/legal/privacy"]);
+const PUBLIC_PAGES = new Set([
+  "/",
+  "/login",
+  "/register",
+  "/legal/terms",
+  "/legal/privacy",
+  "/age-gate",
+]);
+
+const DISCOVERY_PAGE = /^\/(catalog|watch|tag)(\/|$)/;
+const PUBLIC_API_CATALOG = /^\/api\/catalog(\/|$)/;
 
 const USER_PAGE =
-  /^\/(dashboard|story|player|avatar|wallet|store|upgrade|settings|catalog|notifications|bookmarks)(\/|$)/;
+  /^\/(dashboard|story|player|avatar|wallet|store|upgrade|settings|notifications|bookmarks)(\/|$)/;
 
 const ADMIN_PAGE = /^\/admin(\/|$)/;
 
@@ -42,7 +62,21 @@ export async function middleware(request: NextRequest) {
     return withSecurityHeaders(NextResponse.next());
   }
 
-  if (PUBLIC_API.has(pathname)) {
+  if (PUBLIC_API.has(pathname) || PUBLIC_API_CATALOG.test(pathname)) {
+    return withSecurityHeaders(NextResponse.next());
+  }
+
+  if (DISCOVERY_PAGE.test(pathname)) {
+    const flags = platformFlags();
+    if (
+      flags.vertical === "ADULT" &&
+      flags.ageGateEnabled &&
+      request.cookies.get(AGE_GATE_COOKIE)?.value !== "1"
+    ) {
+      const gate = new URL("/age-gate", request.url);
+      gate.searchParams.set("next", pathname);
+      return withSecurityHeaders(NextResponse.redirect(gate));
+    }
     return withSecurityHeaders(NextResponse.next());
   }
 

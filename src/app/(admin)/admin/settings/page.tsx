@@ -9,6 +9,7 @@ type Settings = {
   siteName: string;
   vertical: PlatformVerticalKey;
   ageGateEnabled: boolean;
+  adsEnabled: boolean;
 };
 
 export default function AdminSettingsPage() {
@@ -35,7 +36,7 @@ export default function AdminSettingsPage() {
     <section>
       <PageHeader
         title="Configuración de plataforma"
-        description="Vertical en NEUTRAL hasta que elijas pentesting o contenido adulto."
+        description="Vertical ADULT: activa age gate y anuncios para monetización por tráfico."
         action={
           <Link href="/admin" className="text-sm text-zinc-400 hover:text-white">
             ← Resumen
@@ -79,7 +80,17 @@ export default function AdminSettingsPage() {
                 setSettings({ ...settings, ageGateEnabled: e.target.checked })
               }
             />
-            Age gate (+18) cuando vertical = ADULT
+            Age gate (+18)
+          </label>
+          <label className="flex items-center gap-2 text-sm text-zinc-300">
+            <input
+              type="checkbox"
+              checked={settings.adsEnabled}
+              onChange={(e) =>
+                setSettings({ ...settings, adsEnabled: e.target.checked })
+              }
+            />
+            Anuncios activos (FREE ve ads; Premium/Whale no)
           </label>
           <button
             type="button"

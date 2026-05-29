@@ -16,9 +16,10 @@ La plataforma se construye **sin comprometer vertical** hasta tener el core al m
 1. ✅ Shell UI + auth + tokens + mapa narrativo
 2. ✅ Plataforma neutral (vertical NEUTRAL, admin, legal)
 3. ✅ **Módulos compartidos** (progreso, favoritos, perfil, notificaciones, analytics, creator CRUD)
-4. ⏳ Reglas de negocio finas por vertical (certificados vs compliance adulto)
-5. 🔒 **Pasarela real** (CCBill / crypto / Stripe según vertical)
-6. 🔒 **Video engine** (assets reales, pre-buffer, IA motion al final)
+4. ✅ **Vertical adulto + ads** (catálogo público, tags, trending, AdSlot, age gate) — ver `docs/ADULT_MONETIZATION.md`
+5. ⏳ Reglas de negocio finas (compliance legal, DMCA, 2257 si aplica)
+6. 🔒 **Pasarela real** (CCBill / crypto) — complemento a ads
+7. 🔒 **Video engine** (assets reales, thumbnails, pre-buffer)
 
 ## Módulos compartidos (ambas verticales)
 

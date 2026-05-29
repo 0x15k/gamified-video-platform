@@ -1,10 +1,12 @@
 import "dotenv/config";
 import { mkdirSync, writeFileSync, existsSync } from "fs";
 import path from "path";
+import { randomUUID } from "crypto";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
 import { PrismaClient } from "../src/generated/prisma/client";
 import bcrypt from "bcryptjs";
+import { buildNodeSlug } from "../src/lib/catalog/slug";
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
@@ -17,6 +19,10 @@ const MINIMAL_MP4 = Buffer.from(
     "tGxvdXQAAAAGdHJhawAAAAAAAAAAAAAA",
   "base64",
 );
+
+function slug(title: string) {
+  return buildNodeSlug(title, randomUUID().replace(/-/g, ""));
+}
 
 async function ensureVideos() {
   const storagePath = path.resolve(process.env.VIDEO_STORAGE_PATH ?? "./storage/videos");
@@ -47,9 +53,10 @@ async function main() {
   await prisma.platformSettings.create({
     data: {
       id: "default",
-      siteName: "Gamified Platform",
-      vertical: "NEUTRAL",
-      ageGateEnabled: false,
+      siteName: "Interactive AI",
+      vertical: "ADULT",
+      ageGateEnabled: true,
+      adsEnabled: true,
     },
   });
 
@@ -80,54 +87,107 @@ async function main() {
     },
   });
 
+  await prisma.videoNode.create({
+    data: {
+      title: "AI Animation — Loop 01",
+      slug: slug("AI Animation Loop 01"),
+      summary: "Clip corto estilo animación IA. Demo de catálogo público.",
+      urlHash: "intro",
+      tags: ["ai", "animation", "3d"],
+      vertical: "ADULT",
+      durationSec: 30,
+      viewCount: 8420,
+      isPremium: false,
+      published: true,
+    },
+  });
+
+  await prisma.videoNode.create({
+    data: {
+      title: "AI Animation — Premium teaser",
+      slug: slug("AI Animation Premium teaser"),
+      summary: "Vista previa gratuita; contenido completo con tokens o Premium.",
+      urlHash: "premium-path",
+      tags: ["ai", "animation", "premium"],
+      vertical: "ADULT",
+      durationSec: 45,
+      viewCount: 12500,
+      isPremium: true,
+      tokenCost: 25,
+      previewSec: 20,
+      published: true,
+    },
+  });
+
   const root = await prisma.videoNode.create({
     data: {
-      title: "El comienzo",
+      title: "Historia interactiva — Episodio 1",
+      slug: slug("Historia interactiva Episodio 1"),
+      summary: "Narrativa ramificada con decisiones. Modo historia en /player.",
       urlHash: "intro",
+      tags: ["ai", "interactive", "story"],
+      vertical: "ADULT",
       durationSec: 30,
+      viewCount: 3200,
       isPremium: false,
+      published: true,
     },
   });
 
   const pathA = await prisma.videoNode.create({
     data: {
       title: "Camino valiente",
+      slug: slug("Camino valiente"),
       urlHash: "path-a",
       parentNodeId: root.id,
+      tags: ["interactive"],
+      vertical: "ADULT",
       durationSec: 20,
       isPremium: false,
+      published: true,
     },
   });
 
   const pathB = await prisma.videoNode.create({
     data: {
       title: "Camino premium",
+      slug: slug("Camino premium"),
       urlHash: "premium-path",
       parentNodeId: root.id,
+      tags: ["premium", "interactive"],
+      vertical: "ADULT",
       durationSec: 20,
       isPremium: true,
       tokenCost: 25,
+      previewSec: 15,
+      published: true,
     },
   });
 
   await prisma.videoNode.create({
     data: {
       title: "Final valiente",
+      slug: slug("Final valiente"),
       urlHash: "ending-a",
       parentNodeId: pathA.id,
+      vertical: "ADULT",
       durationSec: 15,
       isPremium: false,
+      published: true,
     },
   });
 
   await prisma.videoNode.create({
     data: {
       title: "Final exclusivo",
+      slug: slug("Final exclusivo"),
       urlHash: "path-b",
       parentNodeId: pathB.id,
+      vertical: "ADULT",
       durationSec: 15,
       isPremium: true,
       tokenCost: 10,
+      published: true,
     },
   });
 
@@ -146,14 +206,14 @@ async function main() {
     data: {
       userId: user.id,
       title: "Bienvenido",
-      body: "Explora el catálogo y el mapa narrativo. Tu progreso se guardará automáticamente.",
+      body: "Explora el catálogo público o inicia sesión para guardar progreso y favoritos.",
     },
   });
 
-  console.log("Seed complete.");
+  console.log("Seed complete (vertical: ADULT, ads + age gate on).");
   console.log("  Demo:  demo@local.dev / Demo1234");
   console.log("  Admin: admin@local.dev / Admin1234");
-  console.log("Root node:", root.id);
+  console.log("  Catalog: http://localhost:3000/catalog");
 }
 
 main()

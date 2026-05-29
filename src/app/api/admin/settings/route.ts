@@ -8,6 +8,7 @@ const patchSchema = z.object({
   siteName: z.string().min(2).max(80).optional(),
   vertical: z.enum(["NEUTRAL", "EDUCATION", "ADULT"]).optional(),
   ageGateEnabled: z.boolean().optional(),
+  adsEnabled: z.boolean().optional(),
 });
 
 export async function GET(request: NextRequest) {
@@ -42,10 +43,16 @@ export async function PATCH(request: NextRequest) {
   const parsed = patchSchema.safeParse(body);
   if (!parsed.success) return jsonError("Invalid input", 400);
 
+  const data = { ...parsed.data };
+  if (data.vertical === "ADULT" && data.adsEnabled === undefined) {
+    data.adsEnabled = true;
+    if (data.ageGateEnabled === undefined) data.ageGateEnabled = true;
+  }
+
   const settings = await prisma.platformSettings.upsert({
     where: { id: "default" },
-    create: { id: "default", ...parsed.data },
-    update: parsed.data,
+    create: { id: "default", ...data },
+    update: data,
   });
 
   return applySecurityHeaders(NextResponse.json({ settings }));

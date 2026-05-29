@@ -25,8 +25,14 @@ export default function HomePage() {
           </p>
           <div className="flex flex-wrap gap-3">
             <Link
-              href="/register"
+              href="/catalog"
               className="rounded-lg bg-indigo-600 px-5 py-2.5 font-medium text-white hover:bg-indigo-500"
+            >
+              Ver catálogo
+            </Link>
+            <Link
+              href="/register"
+              className="rounded-lg border border-zinc-700 px-5 py-2.5 text-zinc-300 hover:border-zinc-500"
             >
               Crear cuenta
             </Link>

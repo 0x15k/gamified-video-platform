@@ -68,6 +68,7 @@ model PlatformSettings {
   siteName        String           @default("Gamified Platform") @map("site_name")
   vertical        PlatformVertical @default(NEUTRAL)
   ageGateEnabled  Boolean          @default(false) @map("age_gate_enabled")
+  adsEnabled      Boolean          @default(false) @map("ads_enabled")
   updatedAt       DateTime         @updatedAt @map("updated_at")
 
   @@map("platform_settings")
@@ -76,20 +77,27 @@ model PlatformSettings {
 model VideoNode {
   id           String           @id @default(cuid())
   title        String
+  slug         String           @unique
   summary      String?
   urlHash      String           @map("url_hash")
+  tags         String[]         @default([])
   vertical     PlatformVertical @default(NEUTRAL)
   isPremium    Boolean          @default(false) @map("is_premium")
   tokenCost    Int              @default(0) @map("token_cost")
   durationSec  Int?             @map("duration_sec")
+  previewSec   Int              @default(30) @map("preview_sec")
+  viewCount    Int              @default(0) @map("view_count")
+  thumbnailUrl String?          @map("thumbnail_url")
+  published    Boolean          @default(true)
   parentNodeId String?          @map("parent_node_id")
-  parentNode   VideoNode?  @relation("VideoTree", fields: [parentNodeId], references: [id])
-  childNodes   VideoNode[]    @relation("VideoTree")
-  createdAt    DateTime       @default(now()) @map("created_at")
+  parentNode   VideoNode?       @relation("VideoTree", fields: [parentNodeId], references: [id])
+  childNodes   VideoNode[]      @relation("VideoTree")
+  createdAt    DateTime         @default(now()) @map("created_at")
   progress     UserProgress[]
   bookmarks    UserBookmark[]
 
   @@index([parentNodeId])
+  @@index([published, viewCount])
   @@map("video_nodes")
 }
 

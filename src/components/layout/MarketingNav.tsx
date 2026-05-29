@@ -1,11 +1,20 @@
 import Link from "next/link";
 
-export function MarketingNav() {
+type Props = {
+  siteName?: string;
+};
+
+export function MarketingNav({ siteName = "Gamified Platform" }: Props) {
   return (
     <nav className="mb-8 flex items-center justify-between border-b border-zinc-800 pb-4">
-      <Link href="/" className="text-lg font-semibold text-white">
-        Gamified Platform
-      </Link>
+      <div className="flex items-center gap-6">
+        <Link href="/" className="text-lg font-semibold text-white">
+          {siteName}
+        </Link>
+        <Link href="/catalog" className="text-sm text-zinc-400 hover:text-white">
+          Catálogo
+        </Link>
+      </div>
       <div className="flex gap-4 text-sm">
         <Link href="/login" className="text-zinc-400 hover:text-white">
           Login
