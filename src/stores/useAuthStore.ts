@@ -9,7 +9,7 @@ export type AvatarData = {
 export type UserProfile = {
   id: string;
   email: string;
-  role: "FREE" | "PREMIUM" | "WHALE";
+  role: "FREE" | "PREMIUM" | "WHALE" | "ADMIN";
   tokensBalance: number;
   avatarData: AvatarData;
 };

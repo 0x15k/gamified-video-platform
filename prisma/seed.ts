@@ -38,6 +38,27 @@ async function main() {
   await prisma.transaction.deleteMany();
   await prisma.videoNode.deleteMany();
   await prisma.user.deleteMany();
+  await prisma.platformSettings.deleteMany();
+
+  await prisma.platformSettings.create({
+    data: {
+      id: "default",
+      siteName: "Gamified Platform",
+      vertical: "NEUTRAL",
+      ageGateEnabled: false,
+    },
+  });
+
+  const adminHash = await bcrypt.hash("Admin1234", 12);
+  await prisma.user.create({
+    data: {
+      email: "admin@local.dev",
+      passwordHash: adminHash,
+      role: "ADMIN",
+      tokensBalance: 9999,
+      avatarData: {},
+    },
+  });
 
   const user = await prisma.user.create({
     data: {
@@ -115,7 +136,9 @@ async function main() {
     },
   });
 
-  console.log("Seed complete. Demo user: demo@local.dev / Demo1234");
+  console.log("Seed complete.");
+  console.log("  Demo:  demo@local.dev / Demo1234");
+  console.log("  Admin: admin@local.dev / Admin1234");
   console.log("Root node:", root.id);
 }
 

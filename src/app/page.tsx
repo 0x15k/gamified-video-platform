@@ -48,6 +48,15 @@ export default function HomePage() {
             </li>
           ))}
         </ul>
+        <p className="text-xs text-zinc-600">
+          <a href="/legal/terms" className="hover:text-zinc-400">
+            Términos
+          </a>
+          {" · "}
+          <a href="/legal/privacy" className="hover:text-zinc-400">
+            Privacidad
+          </a>
+        </p>
       </section>
     </>
   );

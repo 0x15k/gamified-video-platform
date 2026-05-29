@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { usePlatformBrand } from "@/components/platform/PlatformBrand";
 
-const NAV = [
+const BASE_NAV = [
   { href: "/dashboard", label: "Dashboard" },
-  { href: "/story", label: "Historia" },
+  { href: "/catalog", label: "Catálogo" },
+  { href: "/story", label: "Mapa" },
   { href: "/player", label: "Reproductor" },
   { href: "/avatar", label: "Avatar" },
   { href: "/store", label: "Tienda" },
@@ -19,13 +21,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
+  const siteName = usePlatformBrand();
+
+  const NAV =
+    user?.role === "ADMIN"
+      ? [...BASE_NAV, { href: "/admin", label: "Admin" }]
+      : BASE_NAV;
 
   return (
     <div className="flex min-h-[calc(100vh-4rem)] gap-8">
       <aside className="hidden w-56 shrink-0 md:block">
         <div className="sticky top-8 space-y-6">
           <Link href="/dashboard" className="block text-lg font-semibold text-white">
-            Gamified
+            {siteName}
           </Link>
           <nav className="flex flex-col gap-1 text-sm">
             {NAV.map((item) => {

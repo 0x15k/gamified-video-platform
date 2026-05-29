@@ -10,7 +10,7 @@ const PUBLIC_API = new Set([
   "/api/webhooks/ccbill",
   "/api/webhooks/crypto",
 ]);
-const PUBLIC_PAGES = new Set(["/", "/login", "/register"]);
+const PUBLIC_PAGES = new Set(["/", "/login", "/register", "/legal/terms", "/legal/privacy"]);
 
 function withSecurityHeaders(response: NextResponse) {
   const headers = getSecurityHeaders();
@@ -43,9 +43,10 @@ export async function middleware(request: NextRequest) {
   const payload = token ? await verifyAccessToken(token) : null;
 
   const isApi = pathname.startsWith("/api/");
-  const isAppPage = /^\/(dashboard|story|player|avatar|wallet|store|upgrade|settings)(\/|$)/.test(
-    pathname,
-  );
+  const isAppPage =
+    /^\/(dashboard|story|player|avatar|wallet|store|upgrade|settings|catalog|admin)(\/|$)/.test(
+      pathname,
+    );
 
   if ((isApi && !PUBLIC_API.has(pathname)) || isAppPage) {
     if (!payload?.sub) {

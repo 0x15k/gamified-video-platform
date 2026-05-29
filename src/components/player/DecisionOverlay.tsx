@@ -5,7 +5,7 @@ import type { ChildOption } from "@/stores/usePlayerStore";
 type Props = {
   options: ChildOption[];
   tokensBalance: number;
-  userRole: "FREE" | "PREMIUM" | "WHALE";
+  userRole: "FREE" | "PREMIUM" | "WHALE" | "ADMIN";
   onSelect: (option: ChildOption) => void;
 };
 
@@ -15,7 +15,7 @@ function canAccessPremium(
   userRole: Props["userRole"],
 ) {
   if (!opt.isPremium) return true;
-  if (userRole === "PREMIUM" || userRole === "WHALE") return true;
+  if (userRole === "PREMIUM" || userRole === "WHALE" || userRole === "ADMIN") return true;
   return tokensBalance >= opt.tokenCost;
 }
 
