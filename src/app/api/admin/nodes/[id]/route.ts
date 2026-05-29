@@ -8,10 +8,15 @@ const patchSchema = z.object({
   title: z.string().min(1).max(200).optional(),
   summary: z.string().max(500).nullable().optional(),
   urlHash: z.string().min(1).max(120).optional(),
+  slug: z.string().min(2).max(120).optional(),
+  tags: z.array(z.string().min(1).max(40)).max(12).optional(),
   parentNodeId: z.string().nullable().optional(),
   isPremium: z.boolean().optional(),
   tokenCost: z.number().int().min(0).optional(),
   durationSec: z.number().int().positive().nullable().optional(),
+  previewSec: z.number().int().min(0).max(300).optional(),
+  published: z.boolean().optional(),
+  thumbnailUrl: z.string().url().nullable().optional(),
   vertical: z.enum(["NEUTRAL", "EDUCATION", "ADULT"]).optional(),
 });
 
@@ -37,9 +42,16 @@ export async function PATCH(request: NextRequest, context: RouteContext) {
   const parsed = patchSchema.safeParse(body);
   if (!parsed.success) return jsonError("Invalid input", 400);
 
+  const data = {
+    ...parsed.data,
+    ...(parsed.data.tags
+      ? { tags: parsed.data.tags.map((t) => t.toLowerCase().trim()) }
+      : {}),
+  };
+
   const node = await prisma.videoNode.update({
     where: { id },
-    data: parsed.data,
+    data,
   });
 
   return applySecurityHeaders(NextResponse.json({ node }));

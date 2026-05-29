@@ -24,8 +24,13 @@ function formatViews(n: number) {
   return String(n);
 }
 
+function thumbnailSrc(item: CatalogItem) {
+  return item.thumbnailUrl ?? `/api/thumbnail/${item.slug}`;
+}
+
 export function VideoCard({ item }: { item: CatalogItem }) {
   const duration = formatDuration(item.durationSec);
+  const thumb = thumbnailSrc(item);
 
   return (
     <Link
@@ -33,16 +38,8 @@ export function VideoCard({ item }: { item: CatalogItem }) {
       className="group block overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900/40 transition hover:border-zinc-600"
     >
       <div className="relative aspect-video bg-zinc-800">
-        {item.thumbnailUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={item.thumbnailUrl}
-            alt=""
-            className="h-full w-full object-cover"
-          />
-        ) : (
-          <div className="flex h-full items-center justify-center text-zinc-600">▶</div>
-        )}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={thumb} alt="" className="h-full w-full object-cover" loading="lazy" />
         {duration && (
           <span className="absolute bottom-2 right-2 rounded bg-black/80 px-1.5 py-0.5 text-xs text-white">
             {duration}

@@ -1,72 +1,84 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { VideoCard, type CatalogItem } from "@/components/catalog/VideoCard";
-import Link from "next/link";
 
 export function CatalogGrid() {
   const params = useSearchParams();
-  const [data, setData] = useState<{
-    items: CatalogItem[];
-    page: number;
-    totalPages: number;
-  } | null>(null);
+  const [items, setItems] = useState<CatalogItem[]>([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const pendingRef = useRef(false);
+
+  const filterKey = params.toString();
+
+  const loadPage = useCallback(
+    async (pageNum: number, append: boolean) => {
+      const qs = new URLSearchParams(filterKey);
+      qs.set("page", String(pageNum));
+      const res = await fetch(`/api/catalog?${qs}`);
+      if (!res.ok) return;
+      const d = await res.json();
+      setTotalPages(d.totalPages ?? 1);
+      setPage(d.page ?? pageNum);
+      setItems((prev) => (append ? [...prev, ...(d.items ?? [])] : (d.items ?? [])));
+    },
+    [filterKey],
+  );
 
   useEffect(() => {
     setLoading(true);
-    const qs = params.toString();
-    void fetch(`/api/catalog?${qs}`)
-      .then((r) => r.json())
-      .then((d) => {
-        setData({ items: d.items ?? [], page: d.page, totalPages: d.totalPages });
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, [params]);
+    setItems([]);
+    setPage(1);
+    void loadPage(1, false).finally(() => setLoading(false));
+  }, [filterKey, loadPage]);
+
+  useEffect(() => {
+    if (loading || loadingMore || page >= totalPages) return;
+    const el = sentinelRef.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries[0]?.isIntersecting || pendingRef.current) return;
+        pendingRef.current = true;
+        setLoadingMore(true);
+        void loadPage(page + 1, true).finally(() => {
+          setLoadingMore(false);
+          pendingRef.current = false;
+        });
+      },
+      { rootMargin: "200px" },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [loading, loadingMore, page, totalPages, loadPage]);
 
   if (loading) return <p className="text-zinc-500">Cargando catálogo…</p>;
-  if (!data?.items.length) {
-    return <p className="rounded-xl border border-zinc-800 p-8 text-center text-zinc-500">Sin resultados.</p>;
+  if (!items.length) {
+    return (
+      <p className="rounded-xl border border-zinc-800 p-8 text-center text-zinc-500">
+        Sin resultados.
+      </p>
+    );
   }
 
   return (
     <div className="space-y-6">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {data.items.map((item) => (
-          <VideoCard key={item.slug} item={item} />
+        {items.map((item) => (
+          <VideoCard key={`${item.slug}-${item.title}`} item={item} />
         ))}
       </div>
-      {data.totalPages > 1 && (
-        <div className="flex justify-center gap-2">
-          {data.page > 1 && (
-            <Link
-              href={`/catalog?${updatePage(params, data.page - 1)}`}
-              className="rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300"
-            >
-              ← Anterior
-            </Link>
-          )}
-          <span className="px-4 py-2 text-sm text-zinc-500">
-            {data.page} / {data.totalPages}
-          </span>
-          {data.page < data.totalPages && (
-            <Link
-              href={`/catalog?${updatePage(params, data.page + 1)}`}
-              className="rounded-lg border border-zinc-700 px-4 py-2 text-sm text-zinc-300"
-            >
-              Siguiente →
-            </Link>
-          )}
-        </div>
+      <div ref={sentinelRef} className="h-8" />
+      {loadingMore && <p className="text-center text-sm text-zinc-500">Cargando más…</p>}
+      {page >= totalPages && items.length > 0 && (
+        <p className="text-center text-xs text-zinc-600">Fin del catálogo</p>
       )}
     </div>
   );
-}
-
-function updatePage(params: URLSearchParams, page: number) {
-  const next = new URLSearchParams(params.toString());
-  next.set("page", String(page));
-  return next.toString();
 }

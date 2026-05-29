@@ -12,6 +12,7 @@ import { verifyAccessToken } from "@/lib/auth/jwt";
 import { ACCESS_COOKIE } from "@/lib/auth/cookies";
 import type { SubscriptionPlan } from "@/lib/rbac/types";
 import type { Metadata } from "next";
+import { getSiteUrl } from "@/lib/platform/site-url";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -19,10 +20,30 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const node = await getNodeBySlug(slug);
   if (!node) return { title: "No encontrado" };
+
+  const base = getSiteUrl();
+  const thumb = node.thumbnailUrl ?? `${base}/api/thumbnail/${slug}`;
+  const description =
+    node.summary ??
+    `Watch ${node.title} — ${node.tags.map((t) => `#${t}`).join(" ")}`;
+
   return {
     title: node.title,
-    description: node.summary ?? undefined,
+    description,
     keywords: node.tags,
+    openGraph: {
+      title: node.title,
+      description,
+      type: "video.other",
+      url: `${base}/watch/${slug}`,
+      images: [{ url: thumb, width: 640, height: 360, alt: node.title }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: node.title,
+      description,
+      images: [thumb],
+    },
   };
 }
 

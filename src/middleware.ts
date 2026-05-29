@@ -33,6 +33,7 @@ const PUBLIC_PAGES = new Set([
 
 const DISCOVERY_PAGE = /^\/(catalog|watch|tag)(\/|$)/;
 const PUBLIC_API_CATALOG = /^\/api\/catalog(\/|$)/;
+const PUBLIC_API_THUMBNAIL = /^\/api\/thumbnail\//;
 
 const USER_PAGE =
   /^\/(dashboard|story|player|avatar|wallet|store|upgrade|settings|notifications|bookmarks)(\/|$)/;
@@ -62,7 +63,7 @@ export async function middleware(request: NextRequest) {
     return withSecurityHeaders(NextResponse.next());
   }
 
-  if (PUBLIC_API.has(pathname) || PUBLIC_API_CATALOG.test(pathname)) {
+  if (PUBLIC_API.has(pathname) || PUBLIC_API_CATALOG.test(pathname) || PUBLIC_API_THUMBNAIL.test(pathname)) {
     return withSecurityHeaders(NextResponse.next());
   }
 

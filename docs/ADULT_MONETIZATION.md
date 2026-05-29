@@ -20,7 +20,12 @@
 - Cada vídeo tiene `slug` único → `/watch/[slug]`.
 - Tags en array PostgreSQL → `/catalog?tag=ai`.
 - Orden **trending** por `viewCount`.
-- Añade sitemap y contenido constante para que los ads tengan impresiones.
+- **Sitemap automático:** `/sitemap.xml` (vídeos + tags).
+- **robots.txt:** `/robots.txt` permite catálogo y watch.
+- **Thumbnails:** `/api/thumbnail/[slug]` (SVG por título/tags si no hay imagen).
+- **Open Graph** en páginas watch para compartir en redes.
+- Configura `NEXT_PUBLIC_SITE_URL` en producción.
+- Scroll infinito en catálogo = más impresiones de ads por sesión.
 
 ## Legal (checklist)
 
