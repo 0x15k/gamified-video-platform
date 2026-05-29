@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAuth, requireRateLimit, requirePremiumAccess } from "@/lib/security/api-guard";
+import {
+  requireAuth,
+  requireRateLimit,
+  deductTokensForNode,
+} from "@/lib/security/api-guard";
 import { getVideoNodeWithChildren } from "@/lib/video/tree";
 import { issueMediaToken } from "@/lib/security/media-token";
 import { applySecurityHeaders } from "@/lib/security/headers";
@@ -21,12 +25,13 @@ export async function GET(request: NextRequest, context: RouteContext) {
     );
   }
 
-  const premiumBlock = await requirePremiumAccess(user, node);
-  if (premiumBlock) return premiumBlock;
+  const access = await deductTokensForNode(user.id, node);
+  if (!access.ok) return access.response;
+  const activeUser = access.user;
 
   const streamToken = await issueMediaToken({
     fileName: `${node.urlHash}.mp4`,
-    userId: user.id,
+    userId: activeUser.id,
     nodeId: node.id,
   });
 
@@ -37,7 +42,7 @@ export async function GET(request: NextRequest, context: RouteContext) {
     node.childNodes.map(async (child) => {
       const childToken = await issueMediaToken({
         fileName: `${child.urlHash}.mp4`,
-        userId: user.id,
+        userId: activeUser.id,
         nodeId: child.id,
       });
       return {
@@ -62,6 +67,10 @@ export async function GET(request: NextRequest, context: RouteContext) {
         streamUrl,
       },
       children,
+      user: {
+        tokensBalance: activeUser.tokensBalance,
+        role: activeUser.role,
+      },
     }),
   );
 }

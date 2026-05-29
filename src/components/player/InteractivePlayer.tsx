@@ -18,6 +18,7 @@ export function InteractivePlayer({ nodeId }: Props) {
   const playerRef = useRef<Player | null>(null);
   const [showChoices, setShowChoices] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const user = useAuthStore((s) => s.user);
   const setUser = useAuthStore((s) => s.setUser);
@@ -25,35 +26,57 @@ export function InteractivePlayer({ nodeId }: Props) {
     currentNode,
     children,
     setNodeData,
-    getPreload,
     clearPreloads,
     pushHistory,
-    setPreload,
   } = usePlayerStore();
 
   const loadNode = useCallback(
     async (id: string) => {
       setLoading(true);
       setShowChoices(false);
+      setError(null);
       clearPreloads();
 
       const res = await fetch(`/api/video/nodes/${id}`);
       if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        if (res.status === 402) {
+          setError("No tienes tokens suficientes para este contenido premium.");
+        } else if (res.status === 401) {
+          setError("Sesión expirada. Vuelve a iniciar sesión.");
+        } else {
+          setError(data.error ?? "No se pudo cargar el video.");
+        }
         setLoading(false);
         return;
       }
+
       const data = await res.json();
       setNodeData(data.node, data.children);
       pushHistory(id);
+
+      const currentUser = useAuthStore.getState().user;
+      if (currentUser && data.user) {
+        setUser({
+          ...currentUser,
+          tokensBalance: data.user.tokensBalance,
+          role: data.user.role,
+        });
+      }
+
       setLoading(false);
 
       const player = playerRef.current;
       if (player) {
-        player.src({ src: data.node.streamUrl, type: "video/mp4" });
+        const cached = usePlayerStore.getState().getPreload(id);
+        player.src({
+          src: cached ?? data.node.streamUrl,
+          type: "video/mp4",
+        });
         void player.play();
       }
     },
-    [clearPreloads, pushHistory, setNodeData],
+    [clearPreloads, pushHistory, setNodeData, setUser],
   );
 
   useEffect(() => {
@@ -85,31 +108,24 @@ export function InteractivePlayer({ nodeId }: Props) {
   }, [nodeId, loadNode, clearPreloads]);
 
   const handleSelect = async (option: ChildOption) => {
-    if (option.isPremium && user?.role === "FREE") {
-      if ((user?.tokensBalance ?? 0) < option.tokenCost) return;
-      const spendRes = await fetch("/api/wallet/spend", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nodeId: option.id }),
-      });
-      if (!spendRes.ok) return;
-      const spendData = await spendRes.json();
-      if (user) {
-        setUser({ ...user, tokensBalance: spendData.user.tokensBalance });
-      }
-    }
-
     setShowChoices(false);
-    const cached = getPreload(option.id);
-    const player = playerRef.current;
-    if (player) {
-      const src = cached ?? option.streamUrl;
-      player.src({ src, type: "video/mp4" });
-      void player.play();
-      if (cached) setPreload(option.id, cached);
-    }
     await loadNode(option.id);
   };
+
+  if (error) {
+    return (
+      <div className="rounded-lg border border-red-500/40 bg-red-950/30 p-4 text-red-200">
+        <p>{error}</p>
+        <button
+          type="button"
+          onClick={() => void loadNode(nodeId)}
+          className="mt-3 text-sm underline"
+        >
+          Reintentar
+        </button>
+      </div>
+    );
+  }
 
   if (loading && !currentNode) {
     return <p className="text-zinc-400">Cargando experiencia...</p>;

@@ -3,7 +3,11 @@ import { verifyAccessToken } from "@/lib/auth/jwt";
 import { ACCESS_COOKIE } from "@/lib/auth/cookies";
 import { getSecurityHeaders } from "@/lib/security/headers";
 
-const PUBLIC_API = new Set(["/api/auth/login", "/api/auth/register"]);
+const PUBLIC_API = new Set([
+  "/api/auth/login",
+  "/api/auth/register",
+  "/api/auth/refresh",
+]);
 const PUBLIC_PAGES = new Set(["/", "/login", "/register"]);
 
 function withSecurityHeaders(response: NextResponse) {

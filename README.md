@@ -10,6 +10,8 @@ cp .env.example .env   # edit secrets in production
 npm run dev:infra      # PostgreSQL + Redis via Docker
 npx prisma migrate dev
 npm run db:seed
+chmod +x scripts/generate-placeholder-videos.sh
+./scripts/generate-placeholder-videos.sh   # requiere ffmpeg
 npm run dev
 ```
 

@@ -49,5 +49,8 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     set({ preloadCache: new Map() });
   },
   pushHistory: (nodeId) =>
-    set((s) => ({ history: [...s.history, nodeId] })),
+    set((s) => {
+      if (s.history[s.history.length - 1] === nodeId) return s;
+      return { history: [...s.history, nodeId] };
+    }),
 }));
